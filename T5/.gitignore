@@ -1,0 +1,5 @@
+/data 
+/lightning_logs
+*.pt
+args.json
+**__pycache__**
