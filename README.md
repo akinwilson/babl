@@ -26,17 +26,3 @@ A dataset has been created from Wikipedia.
 2) Dataset: ([**x**,**c**],**y**)
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
 
-
-# MLOps 
-From model development to prediction serving, we will use GCP's AI platform, Vertex AI, for every aspect of the model lifecycle. 
-
-That is:
-  1) It will be training in GCP environment
-  2) Have it's artifacts (both data and model) be saved in a cloud-native format 
-  3) A contiunous training pipeline for it established (as if new data was avaiable to further finetune the model)
-  4) Be deployed to serve in production 
-  5) Be monitored whilst serving 
-
-
-
-
