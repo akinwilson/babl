@@ -17,9 +17,11 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 import numpy as np
 
+# this object turns words into numbers, a special set of integer numbers
+# I would urge you to explore the object and look at its methods and state 
 tokenizer = T5Tokenizer.from_pretrained("t5-small")
 
-# tokenize the examples
+# Function takes 
 def convert_to_features(example_batch):
     input_encodings = tokenizer.batch_encode_plus(
         example_batch["input_text"], pad_to_max_length=True, max_length=512
@@ -42,12 +44,15 @@ from pathlib import Path
 ext_train = "data/50k.jsonl"
 ext_val =  "data/10k.jsonl"
 
+# this function will download 
 try:
+    print("trying to download from google bucket")
     cloud_train_path = f"/gcs/ml-operations/{ext_train}"
     cloud_val_path = f"/gcs/ml-operations/{ext_val}"
     train_dataset = build_dataset(cloud_train_path)
     valid_dataset = build_dataset(cloud_val_path)
 except:
+    print("hitting exception")
     train_path = str(Path(__file__).parent.resolve() / ext_train )
     test_path = str(Path(__file__).parent.resolve() / ext_val )
     train_dataset = build_dataset(train_path)
