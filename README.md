@@ -25,14 +25,23 @@ This repository contains the application of a transformer network - the T5 preta
 
 # Repository structure 
 ├── README.md
-└── T5
-    ├── data_classes.py  <-- these are like your config files, there is also the datacollator in there which is NOT really part of the configuration,but rather part of the data loading pipelines. 
-    ├── dockerfile.trainingGPU <-- this file allows you to deploy your model to a docker client. I would urge you to learn about docker. really really badly, if you are not familiar with it. That file describes an operating system, alongside the code from this repo that needs to be copied into the operating system for the end image created by the dockerfile to contain the application of a question and answering system. Go to a linux machine and install a docker client. Pull images and try to build this image itself, I will help with any issues 
-    ├── eval.py <--- this contains the logic to evalute the performance of the fine-tuned models
-    ├── read.py <--- this reads the data and prepares it as input into the model
-    ├── requirements.txt <-- these are your python requirements
-    └── train.py <-- This trains the model. 
 
+└── T5
+    ├── data_classes.py  
+    ├── dockerfile.trainingGPU
+    ├── eval.py
+    ├── read.py
+    └── train.py
+
+<-- these are like your config files, there is also the datacollator in there which is NOT really part of the configuration,but rather part of the data loading pipelines. 
+
+ <--- this reads the data and prepares it as input into the model
+
+ <-- this file allows you to deploy your model to a docker client. I would urge you to learn about docker. really really badly, if you are not familiar with it. That file describes an operating system, alongside the code from this repo that needs to be copied into the operating system for the end image created by the dockerfile to contain the application of a question and answering system. Go to a linux machine and install a docker client. Pull images and try to build this image itself, I will help with any issues 
+
+ <--- this contains the logic to evalute the performance of the fine-tuned models
+
+ <-- This trains the model. 
 
 The example giving will fine tune the T5 transformer network on a question and answering task with the addition of providing additional context to the encoder to prove or disprove **if** the additional contexts improves the overall performance of the network. 
 
@@ -50,6 +59,7 @@ You may need to download it from here https://rajpurkar.github.io/SQuAD-explorer
  One thing you can say Ian is that you do not know whether the original dataset used to fit the T5 model contained examples from the fine-tuning dataset; SQuAD. If it does, the metrics you gained from the validation step arent as reliable as they seem  - you are not supposed to have overlap between training, validation and testing sets. If would be like giving a student a HW question and re-using that HW question in an exam to try to evaluate the students underlying abilities - I am sure you understand that this is not a fair evaluation. But the dataset used to fit the T5 is so large that its hard to tell and requires fine-grained analysis of it. 
 
  SAY THAT AND PEOPLE WONT QUESTION YOU IAN!!!!!!
+
 
 
 # Data 
