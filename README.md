@@ -1,38 +1,36 @@
 # Babl
 
 ![alt text](img/parrot.jpg "conversational")
+# Todo 21 Dec 2024
+- [] locally train and query T5 model from the command line 
+- [] retrieve bloom and LLaMA models and apply the same 
+- [] Django full-stack (https://dev.to/documatic/build-a-chatbot-using-python-django-46hb) to allow for interaction with models, storing and retriewing of conversations
+- [] Write tests 
+- [] installable python package
+- [] Automated testing with GH actions 
+
 ## Overview 
 Causally and masked pretrained deep learning networks have been applied to a variety of domains, particularly [natural language processing](https://en.wikipedia.org/wiki/Natural_language_processing). Babl is a library which allows users to interact with a collection of large language models locally through the web browser. Babl also demonstrates how to [fine-tune](https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)) these models on down-stream applications. This fine-tuning is performed on a question and answering dataset create from Wikipedia. Babl provides access to three models:
 1) [T5](https://en.wikipedia.org/wiki/T5_(language_model))
 2) [LLaMA](https://en.wikipedia.org/wiki/Llama_language_model)
 3) [Bloom](https://en.wikipedia.org/wiki/BLOOM_(language_model))
 
-Ian, I urge you to review HuggingFace, the library, please find it here https://huggingface.co/
 
-_Why is this library so useful?_
 
-The notable transformer networks you have likely heard of, e.g. Bidirectional Encoder Representations from Transformers (BERT), were trained using resources and datasets that you, I or any other commoner would never have access to. That is, they - the collection of all pretrained transformers - tend to be models that were trained over periods of **months** with **terrabytes** worth of data, where the training routine itself was managed by industry leaders in the game, E.g. Google Microsoft etc. What I am trying to say is you would never be able to train from scratch any of the large models that you have access to via HuggingFace. **BUT** the library HuggingFace allows you to get access to these networks, via downloading the logic that makes up the computational layers and their associated weights. The networks are implemented in either tensorflow or pytorch on huggingFace's side, meaning that you can add computational layers ontop of those you have access to via the libary. I urge you to reflect upon the kind of resources you have access to, and their applications, via this library. 
+## Installation 
 
-Comparing this to our world at sky - we have less than 1GB of data - enough to train a sound classifier, but no where near enough to build a state-of-the-art NLP model. So go out there Ian and be a digital bandit and jack as many of these models as you can, find cool applications and present these to use. 
+## Usage 
+```
+python T5/train.py
+```
 
-This is the real deal Ian, you demo this to a machine learning engineer and they will at least recognise you understand the principles of ML - an arhiecture, a dataset and optimizer and how to combine these ideas. 
+## Running tests
 
-_What are examples of amazing applications of such models?_
 
-Check out this repository https://github.com/stanford-futuredata/ColBERT
-It is a search engine built using the HuggingFace library. This is an example of one of the many incredible applications of the libary, it is up to you to figure out what these applications can be, and then obviously write to code too. You recall Craig Murray talking about using NLP to provide insight into the user journey, what he meant is using these kinda of models, fine-tuning them and then using them, amongst others to provide insight, via sentiment analysis or whatever. 
+## Citation 
 
-HuggingFace offers pipelines that you can utilised for the tasks of: 
-- Sentiment Analysis 
-- Summarisation 
-- Information Retrival
-- Entity Extraction 
-- Entity Linking 
-and many more
 
-This repository contains the application of a transformer network - the T5 pretained network - https://arxiv.org/abs/1910.10683 - to the task of **question and answering**; a current research domain of deep learning that is still not considered an *AI complete task* (for example, in the domain of computer vision, image classification, semantic segmentation and so on are considered *AI complete* since they have surpassed human accurary) 
-
-# Repository structure 
+## Repository structure 
 ```
 .
 ├── README.md
