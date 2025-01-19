@@ -29,12 +29,22 @@ Run the script to download the training data:
 ```
 
 ## Usage
-
-
+To prop up all services; the fine-tuning of the models, model serving and webserver application, run
 
 ```
-python T5/train.py
+docker-compose -f docker-compose.yaml
 ```
+
+To fit outside of a container, run 
+
+```
+pip install -r ./models 
+```
+and 
+```
+python fit/train.py
+```
+
 
 ## Running tests
 
@@ -42,36 +52,6 @@ python T5/train.py
 ## Citation 
 
 
-## Repository structure 
-```
-.
-├── README.md
-├── requirements.txt
-└── T5
-    ├── data_classes.py
-    ├── dockerfile.trainingGPU
-    ├── eval.py
-    ├── read.py
-    └── train.py
-```
-
-`data_classes.py` <-- these are like your config files, there is also the datacollator in there which is NOT really part of the configuration,but rather part of the data loading pipelines. 
-
- `read.py` <--- this reads the data and prepares it as input into the model
-
- `dockerfile.trainingGPU`  <-- this file allows you to deploy your model to a docker client or lets say train the model inside of a container rather than your local machine, you dont need to do this but it is definitely good practice to do it. I know you are from a Hardware background, and the idea of the _image_ presists throughout all of tech, but I strongly recommend to isolate the docker image in your mind as a special general purpose image that you, or I, can develop. I would urge you to learn about docker. really really badly, if you are not familiar with it. That file describes an operating system, alongside the code from this repo that needs to be copied into the operating system for the end image created by the dockerfile to contain the application of a question and answering system. Go to a linux machine and install a docker client. Pull images and try to build this image itself, I will help with any issues 
-
-  `eval.py` <--- this contains the logic to evalute the performance of the fine-tuned models
-
- `train.py` <-- This trains the model. 
-
-The example giving will fine tune the T5 transformer network on a question and answering task with the addition of providing additional context to the encoder to prove or disprove **if** the additional contexts improves the overall performance of the network. 
-
-# How to run
-```
-python T5/train.py
-```
-Will initialse the fitting of the model. You wont be able to do it until I give you the dataset. 
 
 # What is SQuAD?
 Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset, consisting of questions posed by crowdworkers on a set of Wikipedia articles, where the answer to every question is a segment of text, or span, from the corresponding reading passage, or the question might be unanswerable.
@@ -79,15 +59,6 @@ Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset, 
 This model fine tunes on this data set, i.e. `inputs/50k.jsonl` corresponds to the SQuAD training dataset. 
 
 Often in various domains there is a standard dataset all ml engineers compare their state of the art models against to make the model comparisions fair. For question and answer that dataset is the SQuAD dataset. 
-
-You may need to download it from here https://rajpurkar.github.io/SQuAD-explorer/ and place it in the correct location as expected from the `train.py` file. I haven't run this repo, so I cannot tell you if it is just a case of dropping the dataset into the location and running the script. But, trust me it will train and evaluate your fine-tuned version of T5 on the SQuAD dataset. 
-
-
-## What can I say to make it sound like I am well-versed on the subject of NLP 
- One thing you can say Ian is that you do not know whether the original dataset used to fit the T5 model contained examples from the fine-tuning dataset; SQuAD. If it does, the metrics you gained from the validation step arent as reliable as they seem  - you are not supposed to have overlap between training, validation and testing sets. If would be like giving a student a HW question and re-using that HW question in an exam to try to evaluate the students underlying abilities - I am sure you understand that this is not a fair evaluation. But the dataset used to fit the T5 is so large that its hard to tell and requires fine-grained analysis of it. 
-
- SAY THAT AND PEOPLE WONT QUESTION YOU IAN!!!!!!
-
 
 
 # Data 
@@ -103,4 +74,3 @@ A dataset has been created from Wikipedia.
 1) Dataset: (**x**,**y**)
 2) Dataset: ([**x**,**c**],**y**)
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
-
