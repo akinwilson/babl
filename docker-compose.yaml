@@ -1,0 +1,19 @@
+
+services:
+  fitting:
+    container_name: fit 
+    build:
+      context: ./fit 
+      dockerfile: Dockerfile.fit 
+  serving:
+    container_name: serve 
+    build: 
+      context: ./serve 
+      dockerfile: Dockerfile.serve 
+  webserver:
+    container_name: web
+    build:
+      context: ./web 
+      dockerfile: Dockerfile.web 
+    
+
