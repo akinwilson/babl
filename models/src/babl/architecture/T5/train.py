@@ -31,8 +31,8 @@ def main(args):
     args_dict = {
     # "num_cores": 6,
     "model_name_or_path": args.model_name_or_path, #  "t5-small",
-    "input_dir":  args.input_dir,
-    "output_dir": args.output_dir,
+    "input_dir":  str(args.input_dir),
+    "output_dir": str(args.output_dir),
     "overwrite_output_dir": True,
     "per_gpu_train_batch_size": 2,
     "per_gpu_eval_batch_size": 8,
@@ -41,12 +41,12 @@ def main(args):
     "tpu_num_cores": 8,
     "do_train": True,
     "remove_unused_columns": False, # this caused me many issues with the collator. Moving over to pytorch lighnting to handling training routine
-    "num_train_epochs": 32,
+    "num_train_epochs": 1,
     }
 
 
-    output_dir = Path(args.root_dir) / args.output_dir
-    input_dir = Path(args.root_dir) /  args.input_dir
+    output_dir = Path(args.output_dir)
+    input_dir = Path(args.input_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -123,7 +123,7 @@ def main(args):
         )
         print("loss: ", loss)
         trainer.save_model()
-        print("train.__dict__()", trainer.__dict__)
+        # print("train.__dict__()", trainer.__dict__)
         tokenizer.save_pretrained(output_dir)
 
     # Evaluation
@@ -138,8 +138,8 @@ def main(args):
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results *****")
             for key in sorted(eval_output.keys()):
-                logger.info("  %s = %s", key, str(eval_output[key]))
-                writer.write("%s = %s\n" % (key, str(eval_output[key])))
+                logger.info(f" {key} = {str(eval_output[key])}")
+                writer.write(f"{key} = {str(eval_output[key])}\n")
 
         results.update(eval_output)
 

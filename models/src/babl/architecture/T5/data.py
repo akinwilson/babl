@@ -12,8 +12,8 @@ from pprint import pprint
 random.seed(42)
 
 
-
-@dataclass
+# creating a baby dataset for debugging purposes 
+DEBUG = True 
 class T2TDataCollator:
     def __call__(self, batch):
         """
@@ -21,7 +21,7 @@ class T2TDataCollator:
         Returns:
             A dictionary of tensors
         """
-        print("Collator(batch,y ) batch[0]: ", batch[0])
+        # print("Collator(batch,y ) batch[0]: ", batch[0])
 
         input_ids = torch.stack([x["input_ids"] for x in batch])
         lm_labels = torch.stack([x["target_ids"] for x in batch])
@@ -186,4 +186,10 @@ def build_dataset(data_file):
     assert len(datapoints["target_text"]) == len(datapoints["input_text"]), "incorrect data distribution"
 
     # from nlp import Dataset
+
+
+    if DEBUG:
+        datapoints["input_text"] = datapoints["input_text"][:128] 
+        datapoints["target_text"] = datapoints["target_text"][:128]
+
     return Dataset.from_dict(datapoints)
