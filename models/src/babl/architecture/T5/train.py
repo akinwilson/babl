@@ -3,19 +3,11 @@ import json
 import logging
 import os
 from pathlib import Path
-
-from transformers import T5Tokenizer
+# import transformers 
+# transformers.logging.set_verbosity_info()
+from transformers import T5Tokenizer, T5ForConditionalGeneration, T5Tokenizer,HfArgumentParser, Trainer, TrainingArguments, set_seed
 from .data import prepare_dataset
 from argparse import ArgumentParser 
-
-from transformers import T5ForConditionalGeneration, T5Tokenizer, EvalPrediction
-from transformers import (
-    HfArgumentParser,
-    Trainer,
-    TrainingArguments,
-    set_seed,
-)
-
 from .config import ModelArguments, DataArguments
 from .data import T2TDataCollator
 
@@ -48,18 +40,21 @@ def main(args):
     "learning_rate": 1e-4,
     "tpu_num_cores": 8,
     "do_train": True,
+    "remove_unused_columns": False, # this caused me many issues with the collator. Moving over to pytorch lighnting to handling training routine
     "num_train_epochs": 32,
     }
 
 
     output_dir = Path(args.root_dir) / args.output_dir
+    input_dir = Path(args.root_dir) /  args.input_dir
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with open( output_dir / "args.json", "w") as f:
         json.dump(args_dict, f)
 
 
-    input_dir = Path(args.root_dir) /  args.input_dir
+    
     
 
     model_args, data_args, train_args = parser.parse_json_file(
@@ -76,9 +71,7 @@ def main(args):
         and train_args.do_train
         and not train_args.overwrite_output_dir
     ):
-        raise ValueError(
-            f"Output directory ({output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
-        )
+        raise ValueError(f"Output directory ({output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome.")
 
     # Setup logging
     logging.basicConfig(
@@ -86,14 +79,7 @@ def main(args):
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO if train_args.local_rank in [-1, 0] else logging.WARN,
     )
-    logger.warning(
-        "Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s",
-        train_args.local_rank,
-        train_args.device,
-        train_args.n_gpu,
-        bool(train_args.local_rank != -1),
-        train_args.fp16,
-    )
+    logger.warning(f"Process rank: {train_args.local_rank}, device: {train_args.device}, n_gpu: {train_args.n_gpu}, distributed training: {bool(train_args.local_rank != -1)}, 16-bits training: {train_args.fp16}")
     # logger.info(f"Training/evaluation parameters:\n{train_args}")
 
     # Set seed
@@ -133,7 +119,7 @@ def main(args):
         loss = trainer.train(
             model_path=model_args.model_name_or_path
             if os.path.isdir(model_args.model_name_or_path)
-            else None
+            else None # load from fs if avialable else download
         )
         print("loss: ", loss)
         trainer.save_model()

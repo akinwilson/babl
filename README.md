@@ -13,7 +13,7 @@ Causally and masked pretrained deep learning networks have been applied to a var
 
 ## Installation 
 
-Create a virtual environment and install the `python`` package requirements. 
+Create a virtual environment and install the `python` package requirements. 
 ```
 pip install -r requirements.txt
 ```

@@ -1,5 +1,6 @@
 import json
 import random
+from dataclasses import dataclass
 from nlp import Dataset
 from pathlib import Path 
 from functools import partial
@@ -12,7 +13,7 @@ random.seed(42)
 
 
 
-
+@dataclass
 class T2TDataCollator:
     def __call__(self, batch):
         """
@@ -20,15 +21,13 @@ class T2TDataCollator:
         Returns:
             A dictionary of tensors
         """
-        print("Collator: ", batch[0].keys())
-        
-        input_ids = torch.stack([example["input_ids"] for example in batch])
-        lm_labels = torch.stack([example["target_ids"] for example in batch])
+        print("Collator(batch,y ) batch[0]: ", batch[0])
+
+        input_ids = torch.stack([x["input_ids"] for x in batch])
+        lm_labels = torch.stack([x["target_ids"] for x in batch])
         lm_labels[lm_labels[:, :] == 0] = -100
-        attention_mask = torch.stack([example["attention_mask"] for example in batch])
-        decoder_attention_mask = torch.stack(
-            [example["target_attention_mask"] for example in batch]
-        )
+        attention_mask = torch.stack([x["attention_mask"] for x in batch])
+        decoder_attention_mask = torch.stack([x["target_attention_mask"] for x in batch])
         ####### NOTICE WE HAVE LABELS instead of TARGET_IDS 
         return {
             "input_ids": input_ids,
@@ -39,14 +38,10 @@ class T2TDataCollator:
 
 
 
-def convert_to_features(example_batch, args):
+def convert_to_features(batch, args):
     tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path) # "t5-small")
-    input_encodings = tokenizer.batch_encode_plus( 
-        example_batch["input_text"],truncation=True, pad_to_max_length=True, max_length=args.input_max_len
-    )
-    target_encodings = tokenizer.batch_encode_plus(
-        example_batch["target_text"],truncation=True, pad_to_max_length=True, max_length=args.output_max_len
-    )
+    input_encodings = tokenizer.batch_encode_plus(batch["input_text"],truncation=True, pad_to_max_length=True, max_length=args.input_max_len)
+    target_encodings = tokenizer.batch_encode_plus(batch["target_text"],truncation=True, pad_to_max_length=True, max_length=args.output_max_len)
     # print("input_encodings", input_encodings.keys())
     # print("target_encodings", target_encodings.keys())
     encodings = {
@@ -56,6 +51,7 @@ def convert_to_features(example_batch, args):
         "target_attention_mask": target_encodings["attention_mask"],
     }
     # print("encodings['target_ids']: ", encodings['target_ids'][:1])
+    assert set(["input_ids", "attention_mask", "target_ids", "target_attention_mask"]) == set(encodings.keys()), "encodings distribution did not match"
     return encodings
 
 
@@ -81,8 +77,8 @@ def prepare_dataset(args, data_args):
     txt2feats = partial(convert_to_features, args=args)
     # map convert_to_features batch wise
     train_dataset = train_dataset.map(txt2feats, batched=True)
-    print("train_dataset: ")
-    pprint(train_dataset)
+    # print("train_dataset: ")
+    # pprint(train_dataset)
     # valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
     valid_dataset = valid_dataset.map(
         txt2feats, batched=True, load_from_cache_file=False
@@ -93,8 +89,8 @@ def prepare_dataset(args, data_args):
     train_dataset.set_format(type="torch", columns=columns)
     valid_dataset.set_format(type="torch", columns=columns)
     
-    print("train_dataset")
-    pprint(train_dataset)
+    # print("train_dataset")
+    # pprint(train_dataset)
 
     t_fpath = input_dir / data_args.proccessed_train_filename # "train_data.pt"
     v_fpath = input_dir / data_args.proccessed_val_filename
@@ -127,10 +123,7 @@ def get_random_negative(q):
     long_answer_indx = q["annotations"][0]["long_answer"]
 
     for i in range(len(q["long_answer_candidates"])):
-        if (
-            q["long_answer_candidates"][i]["start_token"]
-            == long_answer_indx["start_token"]
-        ):
+        if (q["long_answer_candidates"][i]["start_token"] == long_answer_indx["start_token"]):
             del q["long_answer_candidates"][i]
             break
 
@@ -141,14 +134,13 @@ def get_random_negative(q):
 
 
 def build_dataset(data_file):
-
-    with open(data_file, "r") as json_file:
-        json_list = list(json_file)
-
+    
     json_lines = []
-    for json_str in json_list:
-        json_lines.append(json.loads(json_str))
+    with open(data_file, "r") as json_file:
+        for json_str in list(json_file):
+            json_lines.append(json.loads(json_str))
 
+    
     valid_questions = []
     for l in json_lines:
         # clear all docs with more or less than one answer
@@ -165,27 +157,33 @@ def build_dataset(data_file):
     # datapoints['question']= []
     # datapoints['question'] = q['question_text']
 
-    positive_datapoints = []
-    negitave_datapoints = []
-    for q in valid_questions:
+    # positive_datapoints = []
+    # negitave_datapoints = []
+    
+    for (i,q) in enumerate(valid_questions):
 
-        # train
+        # fitting dataset; positive and negative fitting examples 
         if random.randint(0, 1) == 1:
             # Construct positive example
-            datapoints["input_text"].append(
-                f"question: {q['question_text']}  context: {get_long_answer(q)} </s>"
-            )
+            datapoints["input_text"].append(f"question: {q['question_text']}  context: {get_long_answer(q)} </s>")
             datapoints["target_text"].append(get_short_answer(q))
+            # if i % 10000 == 0:
+            #     print("-"*100)
+            #     print("Positive fitting example:")
+            #     print(f"[input_text]: question: {q['question_text']}  context: {get_long_answer(q)} </s>")
+            #     print(f"[target_text]: {get_short_answer(q)}")
+            #     print("-"*100)
         else:
             # Construct negative example
-            datapoints["input_text"].append(
-                f"question: {q['question_text']}  context: {get_random_negative(q)} </s>"
-            )
+            datapoints["input_text"].append(f"question: {q['question_text']}  context: {get_random_negative(q)} </s>")
             datapoints["target_text"].append("None </s>")
-
-    assert len(datapoints["target_text"]) == len(
-        datapoints["input_text"]
-    ), "incorrect data distribution"
+            # if i % 10000 == 0:
+            #     print("-"*100)
+            #     print("negative fitting example:")
+            #     print(f"[input_text]: question: {q['question_text']}  context: {get_random_negative(q)} </s>")
+            #     print(f"[target_text]: None </s>")
+            #     print("-"*100)
+    assert len(datapoints["target_text"]) == len(datapoints["input_text"]), "incorrect data distribution"
 
     # from nlp import Dataset
     return Dataset.from_dict(datapoints)
