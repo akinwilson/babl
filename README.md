@@ -11,7 +11,6 @@ Causally and masked pretrained deep learning networks have been applied to a var
 4) [BERT](https://en.wikipedia.org/wiki/BERT_(language_model))
 
 
-
 ## Installation 
 
 Create a virtual environment and install the requirements
@@ -48,7 +47,7 @@ python fit/train.py
 
 
 
-# What is SQuAD?
+## What is SQuAD?
 Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset, consisting of questions posed by crowdworkers on a set of Wikipedia articles, where the answer to every question is a segment of text, or span, from the corresponding reading passage, or the question might be unanswerable.
 
 This model fine tunes on this data set, i.e. `inputs/50k.jsonl` corresponds to the SQuAD training dataset. 
@@ -71,7 +70,7 @@ ALongside training and delopying the models, this library implements an experime
 2) Dataset: ([**x**,**c**],**y**)
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
 
-# Todo 19 Jan 2025
+## Todo 19 Jan 2025
 - [ ] locally train and query T5 model from the command line 
 - [ ] retrieve bloom, LLaMA and BERT models and apply the same
 - [ ] develop the serving framework, using fastAPI.  
