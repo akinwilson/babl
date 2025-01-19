@@ -1,5 +1,7 @@
 /data
 /inputs
+/outputs
+/notebooks
 Pipfile
 /lightning_logs
 *.pt
