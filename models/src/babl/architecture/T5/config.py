@@ -20,6 +20,7 @@ class T2TDataCollator:
         Returns:
             A dictionary of tensors
         """
+        print("COllator: ", batch[0].keys())
         input_ids = torch.stack([example["input_ids"] for example in batch])
         lm_labels = torch.stack([example["target_ids"] for example in batch])
         lm_labels[lm_labels[:, :] == 0] = -100
@@ -66,6 +67,10 @@ class DataTrainingArguments:
     """
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
+    input_dir: str =  field(
+        default="inputs",
+        metadata={"help": "Directory containing unprocessed input files."},
+    )
 
     train_file_path: Optional[str] = field(
         default="train_data.pt",

@@ -1,10 +1,6 @@
 # F1: https://en.wikipedia.org/wiki/F-score
 ## SQuAD evaluation script. Modifed slightly for this notebook
-
-try:
-    from .config import ModelArguments
-except:
-    from config import ModelArguments
+from config import ModelArguments
 from transformers import HfArgumentParser
 
 from pathlib import Path

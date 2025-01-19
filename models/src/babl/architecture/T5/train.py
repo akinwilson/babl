@@ -26,60 +26,73 @@ import sys
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 import numpy as np
+from pathlib import Path
+from functools import partial
+
 
 # this object turns words into numbers, a special set of integer numbers
 # I would urge you to explore the object and look at its methods and state 
-tokenizer = T5Tokenizer.from_pretrained("t5-small")
 
 # Function takes 
-def convert_to_features(example_batch):
+def convert_to_features(example_batch, args):
+    tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path) # "t5-small")
     input_encodings = tokenizer.batch_encode_plus(
         example_batch["input_text"], pad_to_max_length=True, max_length=512
     )
     target_encodings = tokenizer.batch_encode_plus(
         example_batch["target_text"], pad_to_max_length=True, max_length=16
     )
-
+    print("input_encodings", input_encodings.keys())
+    print("target_encodings", target_encodings.keys())
     encodings = {
         "input_ids": input_encodings["input_ids"],
         "attention_mask": input_encodings["attention_mask"],
         "target_ids": target_encodings["input_ids"],
         "target_attention_mask": target_encodings["attention_mask"],
     }
-
+    print("encodings: ", encodings)
     return encodings
 
-from pathlib import Path
 
 
-## Controls location of input data
-##################################################################
-ext_train = "inputs/50k.jsonl"
-ext_val =  "inputs/10k.jsonl"
-train_path = str(Path(__file__).parent.parent.parent / ext_train )
-test_path = str(Path(__file__).parent.parent.parent / ext_val )
-##################################################################
-
-train_dataset = build_dataset(train_path)
-valid_dataset = build_dataset(test_path)
 
 
-# map convert_to_features batch wise
-train_dataset = train_dataset.map(convert_to_features, batched=True)
 
-# valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
-valid_dataset = valid_dataset.map(
-    convert_to_features, batched=True, load_from_cache_file=False
-)
-
-# set the tensor type and the columns which the dataset should return
-columns = ["input_ids", "target_ids", "attention_mask", "target_attention_mask"]
-train_dataset.set_format(type="torch", columns=columns)
-valid_dataset.set_format(type="torch", columns=columns)
+def prepare_dataset(args):
 
 
-t_fname = "train_data.pt"
-v_fname = "valid_data.pt"
+    ## Controls location of input data
+    ##################################################################
+    ext_train = "inputs/50k.jsonl"
+    ext_val =  "inputs/10k.jsonl"
+    train_path = str(Path(__file__).parent.parent.parent / ext_train )
+    test_path = str(Path(__file__).parent.parent.parent / ext_val )
+    ##################################################################
+
+    train_dataset = build_dataset(train_path)
+    valid_dataset = build_dataset(test_path)
+
+
+    txt2feats = partial(convert_to_features, args=args)
+    # map convert_to_features batch wise
+    train_dataset = train_dataset.map(txt2feats, batched=True)
+
+    # valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
+    valid_dataset = valid_dataset.map(
+        txt2feats, batched=True, load_from_cache_file=False
+    )
+
+    # set the tensor type and the columns which the dataset should return
+    columns = ["input_ids", "target_ids", "attention_mask", "target_attention_mask"]
+    train_dataset.set_format(type="torch", columns=columns)
+    valid_dataset.set_format(type="torch", columns=columns)
+
+
+    t_fname = "train_data.pt"
+    v_fname = "valid_data.pt"
+
+    torch.save(train_dataset, t_fname)
+    torch.save(valid_dataset, v_fname)
 
 # try:
 # # cache the dataset, so we can load it directly for training
@@ -89,8 +102,7 @@ v_fname = "valid_data.pt"
 #     torch.save(valid_dataset, cloud_val_path)
 # except:
 
-torch.save(train_dataset, t_fname)
-torch.save(valid_dataset, v_fname)
+
 
 
 
@@ -114,7 +126,7 @@ def main(args):
 
 
     args_dict = {
-    "num_cores": 6,
+    # "num_cores": 6,
     "model_name_or_path": args.model_name_or_path, #  "t5-small",
     "max_len": args.max_len,
     "target_max_len": args.target_max_len,
@@ -233,5 +245,6 @@ if __name__ == "__main__":
     parser.add_argument('--input-dir', default="./inputs/")
     parser.add_argument('--model-name-or-path', default='t5-small')
     parser.add_argument('--target-max-len', default=32)
-    args = parser.parse_args() 
+    args = parser.parse_args()
+    prepare_dataset(args)
     main(args)
