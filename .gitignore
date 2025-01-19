@@ -7,3 +7,4 @@ Pipfile
 *.pt
 args.json
 **__pycache__**
+/babl.egg-info
