@@ -1,5 +1,7 @@
-**data
-**logs**
-T5/Pipefile
+/data
+/inputs
 Pipfile
-Pipfile.lock
+/lightning_logs
+*.pt
+args.json
+**__pycache__**
