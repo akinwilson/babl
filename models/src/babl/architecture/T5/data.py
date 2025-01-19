@@ -6,8 +6,38 @@ from functools import partial
 from transformers import T5Tokenizer
 import torch 
 
+from pprint import pprint 
 
 random.seed(42)
+
+
+
+
+class T2TDataCollator:
+    def __call__(self, batch):
+        """
+        Take a list of samples from a Dataset and collate them into a batch.
+        Returns:
+            A dictionary of tensors
+        """
+        print("Collator: ", batch[0].keys())
+        
+        input_ids = torch.stack([example["input_ids"] for example in batch])
+        lm_labels = torch.stack([example["target_ids"] for example in batch])
+        lm_labels[lm_labels[:, :] == 0] = -100
+        attention_mask = torch.stack([example["attention_mask"] for example in batch])
+        decoder_attention_mask = torch.stack(
+            [example["target_attention_mask"] for example in batch]
+        )
+        ####### NOTICE WE HAVE LABELS instead of TARGET_IDS 
+        return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": lm_labels,
+            "decoder_attention_mask": decoder_attention_mask,
+        }
+
+
 
 def convert_to_features(example_batch, args):
     tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path) # "t5-small")
@@ -51,7 +81,8 @@ def prepare_dataset(args, data_args):
     txt2feats = partial(convert_to_features, args=args)
     # map convert_to_features batch wise
     train_dataset = train_dataset.map(txt2feats, batched=True)
-
+    print("train_dataset: ")
+    pprint(train_dataset)
     # valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
     valid_dataset = valid_dataset.map(
         txt2feats, batched=True, load_from_cache_file=False
@@ -61,7 +92,9 @@ def prepare_dataset(args, data_args):
     columns = ["input_ids", "target_ids", "attention_mask", "target_attention_mask"]
     train_dataset.set_format(type="torch", columns=columns)
     valid_dataset.set_format(type="torch", columns=columns)
-
+    
+    print("train_dataset")
+    pprint(train_dataset)
 
     t_fpath = input_dir / data_args.proccessed_train_filename # "train_data.pt"
     v_fpath = input_dir / data_args.proccessed_val_filename

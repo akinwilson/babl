@@ -10,30 +10,8 @@ import torch
 # prepares lm_labels from target_ids, returns examples with keys as expected by the forward method
 # this is necessacry because the trainer directly passes this dict as arguments to the model
 # so make sure the keys match the parameter names of the forward method
-@dataclass
-class T2TDataCollator:
-    def __call__(self, batch):
-        """
-        Take a list of samples from a Dataset and collate them into a batch.
-        Returns:
-            A dictionary of tensors
-        """
-        print("Collator: ", batch[0].keys())
+# @dataclass
 
-        input_ids = torch.stack([example["input_ids"] for example in batch])
-        lm_labels = torch.stack([example["target_ids"] for example in batch])
-        lm_labels[lm_labels[:, :] == 0] = -100
-        attention_mask = torch.stack([example["attention_mask"] for example in batch])
-        decoder_attention_mask = torch.stack(
-            [example["target_attention_mask"] for example in batch]
-        )
-
-        return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "labels": lm_labels,
-            "decoder_attention_mask": decoder_attention_mask,
-        }
 
 
 
@@ -98,11 +76,11 @@ class DataArguments:
         default="valid_data.pt",
         metadata={"help": "Path for cached valid dataset"},
     )
-    max_len: Optional[int] = field(
+    input_max_len: Optional[int] = field(
         default=512,
         metadata={"help": "Max input length for the source text"},
     )
-    target_max_len: Optional[int] = field(
+    output_max_len: Optional[int] = field(
         default=32,
         metadata={"help": "Max input length for the target text"},
     )

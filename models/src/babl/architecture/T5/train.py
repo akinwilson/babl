@@ -16,8 +16,8 @@ from transformers import (
     set_seed,
 )
 
-from .config import T2TDataCollator, ModelArguments, DataArguments
-
+from .config import ModelArguments, DataArguments
+from .data import T2TDataCollator
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,6 @@ def main(args):
     args_dict = {
     # "num_cores": 6,
     "model_name_or_path": args.model_name_or_path, #  "t5-small",
-    "max_len": args.max_len,
-    "target_max_len": args.target_max_len,
     "input_dir":  args.input_dir,
     "output_dir": args.output_dir,
     "overwrite_output_dir": True,
@@ -96,7 +94,7 @@ def main(args):
         bool(train_args.local_rank != -1),
         train_args.fp16,
     )
-    logger.info(f"Training/evaluation parameters:\n{train_args}")
+    # logger.info(f"Training/evaluation parameters:\n{train_args}")
 
     # Set seed
     set_seed(train_args.seed)
@@ -139,7 +137,7 @@ def main(args):
         )
         print("loss: ", loss)
         trainer.save_model()
-
+        print("train.__dict__()", trainer.__dict__)
         tokenizer.save_pretrained(output_dir)
 
     # Evaluation
@@ -168,11 +166,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument('--max-len', default=128)
+    parser.add_argument('--input-max-len', default=128)
     parser.add_argument('--output-dir', default="outputs")
     parser.add_argument('--input-dir', default="inputs")
     parser.add_argument("--root-dir", default=Path().cwd().parent.parent.parent.parent.parent)
     parser.add_argument('--model-name-or-path', default='t5-small')
-    parser.add_argument('--target-max-len', default=32)
+    parser.add_argument('--output-max-len', default=32)
+
     args = parser.parse_args()
     main(args)
