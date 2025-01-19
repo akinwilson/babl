@@ -1,13 +1,7 @@
 # babl
 
 ![alt text](img/parrot.jpg "conversational")
-# Todo 21 Dec 2024
-- [] locally train and query T5 model from the command line 
-- [] retrieve bloom and LLaMA models and apply the same 
-- [] Django full-stack (https://dev.to/documatic/build-a-chatbot-using-python-django-46hb) to allow for interaction with models, storing and retriewing of conversations
-- [] Write tests 
-- [] installable python package
-- [] Automated testing with GH actions 
+
 
 ## Overview 
 Causally and masked pretrained deep learning networks have been applied to a variety of domains, particularly [natural language processing](https://en.wikipedia.org/wiki/Natural_language_processing). Babl is a library which allows users to interact with a collection of large language models locally through the web browser. Babl also demonstrates how to [fine-tune](https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)) these models on down-stream applications. This fine-tuning is performed on a question and answering dataset create from Wikipedia by Standford academics; [SQuAD](https://arxiv.org/abs/1606.05250). Babl provides access to four models:
@@ -62,16 +56,26 @@ This model fine tunes on this data set, i.e. `inputs/50k.jsonl` corresponds to t
 Often in various domains there is a standard dataset all ml engineers compare their state of the art models against to make the model comparisions fair. For question and answer that dataset is the SQuAD dataset. 
 
 
-# Data 
+## Data 
 A dataset has been created from Wikipedia. 
 - it contains questions (**x**) and their ground truth answers (**y**)
 - Alongside side these pairs (**x**, **y**), the dataset contains context **c** deemed relevant to answering the underlying question 
 - i.e. Sample example ((**x**, **c**), **y**). 
 
-# Experiment goal
-- The goal of the experiment is to prove or disprove if providing the encoder of the network with the additional context **c** alongside the question **x** improves the overall performance of the generator (the component of the network that produces **y**)
+## Experiment
+
+ALongside training and delopying the models, this library implements an experiment which, once conducted, shouls provide motivation as to how and why the [RAG](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) architecture was developed.  The goal of the experiment is to prove or disprove if providing the encoder of the network with the additional context **c** alongside the question **x** improves the overall performance of the generator (the component of the network that produces **y**)
 
 - I.e. will the performance metrics improve, w.r.t the second model trained in dataset 2), if two models are fined tuned on two different datasets:
 1) Dataset: (**x**,**y**)
 2) Dataset: ([**x**,**c**],**y**)
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
+
+# Todo 19 Jan 2025
+- [ ] locally train and query T5 model from the command line 
+- [ ] retrieve bloom, LLaMA and BERT models and apply the same
+- [ ] develop the serving framework, using fastAPI.  
+- [ ] Django full-stack (https://dev.to/documatic/build-a-chatbot-using-python-django-46hb) to allow for interaction with models, storing and retriewing of conversations
+- [ ] Write tests 
+- [x] installable python package
+- [ ] Automated testing with GH actions 
