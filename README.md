@@ -19,7 +19,19 @@ Causally and masked pretrained deep learning networks have been applied to a var
 
 ## Installation 
 
-## Usage 
+Create a virtual environment and install the requirements
+```
+pip install -r requirements.txt
+```
+Run the script to download the training data: 
+```
+./pull_data.sh
+```
+
+## Usage
+
+
+
 ```
 python T5/train.py
 ```
@@ -64,7 +76,7 @@ Will initialse the fitting of the model. You wont be able to do it until I give 
 # What is SQuAD?
 Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset, consisting of questions posed by crowdworkers on a set of Wikipedia articles, where the answer to every question is a segment of text, or span, from the corresponding reading passage, or the question might be unanswerable.
 
-This model fine tunes on this data set, i.e. `data/50k.jsonl` corresponds to the SQuAD training dataset. 
+This model fine tunes on this data set, i.e. `inputs/50k.jsonl` corresponds to the SQuAD training dataset. 
 
 Often in various domains there is a standard dataset all ml engineers compare their state of the art models against to make the model comparisions fair. For question and answer that dataset is the SQuAD dataset. 
 
