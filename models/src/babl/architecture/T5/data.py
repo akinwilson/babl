@@ -1,8 +1,75 @@
 import json
 import random
 from nlp import Dataset
+from pathlib import Path 
+from functools import partial
+from transformers import T5Tokenizer
+import torch 
+
 
 random.seed(42)
+
+def convert_to_features(example_batch, args):
+    tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path) # "t5-small")
+    input_encodings = tokenizer.batch_encode_plus( 
+        example_batch["input_text"],truncation=True, pad_to_max_length=True, max_length=args.input_max_len
+    )
+    target_encodings = tokenizer.batch_encode_plus(
+        example_batch["target_text"],truncation=True, pad_to_max_length=True, max_length=args.output_max_len
+    )
+    # print("input_encodings", input_encodings.keys())
+    # print("target_encodings", target_encodings.keys())
+    encodings = {
+        "input_ids": input_encodings["input_ids"],
+        "attention_mask": input_encodings["attention_mask"],
+        "target_ids": target_encodings["input_ids"],
+        "target_attention_mask": target_encodings["attention_mask"],
+    }
+    # print("encodings['target_ids']: ", encodings['target_ids'][:1])
+    return encodings
+
+
+
+
+def prepare_dataset(args, data_args):
+
+
+    ## Controls location of input data
+    ##################################################################
+    # train_filename = "50k.jsonl"
+    # val_filename =  "10k.jsonl"
+
+    input_dir = Path(args.root_dir) /  args.input_dir
+    train_path = input_dir / data_args.train_filename 
+    test_path = input_dir / data_args.val_filename 
+    ##################################################################
+
+    train_dataset = build_dataset(train_path)
+    valid_dataset = build_dataset(test_path)
+
+
+    txt2feats = partial(convert_to_features, args=args)
+    # map convert_to_features batch wise
+    train_dataset = train_dataset.map(txt2feats, batched=True)
+
+    # valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
+    valid_dataset = valid_dataset.map(
+        txt2feats, batched=True, load_from_cache_file=False
+    )
+
+    # set the tensor type and the columns which the dataset should return
+    columns = ["input_ids", "target_ids", "attention_mask", "target_attention_mask"]
+    train_dataset.set_format(type="torch", columns=columns)
+    valid_dataset.set_format(type="torch", columns=columns)
+
+
+    t_fpath = input_dir / data_args.proccessed_train_filename # "train_data.pt"
+    v_fpath = input_dir / data_args.proccessed_val_filename
+
+    torch.save(train_dataset, t_fpath)
+    torch.save(valid_dataset, v_fpath)
+
+
 
 
 def get_exert(doc, start_token, end_token):
