@@ -13,11 +13,11 @@ Causally and masked pretrained deep learning networks have been applied to a var
 
 ## Installation 
 
-Create a virtual environment and install the requirements
+Create a virtual environment and install the `python`` package requirements. 
 ```
 pip install -r requirements.txt
 ```
-Run the script to download the training data: 
+Run the following `bash` script to download the training data: 
 ```
 ./pull_data.sh
 ```
