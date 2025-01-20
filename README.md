@@ -11,16 +11,7 @@ Causally and masked pretrained deep learning networks have been applied to a var
 4) [BERT](https://en.wikipedia.org/wiki/BERT_(language_model))
 
 
-## Installation 
 
-Create a virtual environment and install the `python` package requirements. 
-```
-pip install -r requirements.txt
-```
-Run the following `bash` script to download the training data: 
-```
-./pull_data.sh
-```
 
 ## Usage
 To prop up all services; the fine-tuning of the models, model serving and webserver application, run
@@ -38,6 +29,24 @@ and
 ```
 python fit/train.py
 ```
+
+
+## Installation 
+
+
+Create a virtual environment and install the `python` package requirements. 
+```
+pip install -r requirements.txt
+```
+To fintstall the python library containing all the large language models, `babl`, run 
+```
+pip install -e ./models
+```
+If you would like to run the `fit/fit.py` script to train a model and need the data, run the following `bash` script to download it: 
+```
+./pull_data.sh
+```
+
 
 
 ## Running tests
