@@ -68,7 +68,7 @@ def prepare_dataset(args, data_args):
 
     tds = build_dataset(train_path)
     vds = build_dataset(test_path)
-
+    print(f"[data.py]::prepare_dataset:finished building ds")
 
     txt2feats = partial(convert_to_features, args=args)
     # map convert_to_features batch wise
@@ -130,11 +130,15 @@ def get_random_negative(q):
 
 
 def build_dataset(data_file):
-    
+    print(f"[data.py::build_dataset] Hit function. Parameter:{data_file=}")
+
     json_lines = []
     with open(data_file, "r") as json_file:
-        for json_str in list(json_file):
+        x = list(json_file)
+        print(f"[data.py::build_dataset]{x=}")
+        for json_str in x:
             json_lines.append(json.loads(json_str))
+    print("[data.py::build_dataset] finished reading raw data")
 
     
     valid_questions = []
