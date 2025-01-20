@@ -74,14 +74,15 @@ def evaluate(gold_answers, predictions):
 def test(args):    
     
     model_path = Path(args.output_dir)
-    checkpoint =  model_path /  "checkpoint-1" # ""
-
+    
+    checkpoint_path =  model_path /  "checkpoint-1" # ""
+    print(f"[train.py::test]: {checkpoint_path=}")
     # for checkpoint in listdir(checkpoints):
     # model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
     try:
-        model = T5ForConditionalGeneration.from_pretrained(checkpoint).to("cuda")
+        model = T5ForConditionalGeneration.from_pretrained(checkpoint_path).to("cuda")
     except:
-        print(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint} path didnt work")
+        print(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint_path} path didnt work")
         model = T5ForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=args.model_name_or_path).to("cuda")
 
     tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)#  "t5-small")
@@ -110,4 +111,5 @@ def test(args):
     from pprint import pprint 
     print("References:")
     pprint(references)
-    print(checkpoint, evaluate(references, predictions))
+    print(checkpoint_path, evaluate(references, predictions))
+    

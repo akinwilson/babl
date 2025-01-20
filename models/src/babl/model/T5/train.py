@@ -14,16 +14,14 @@ from .data import T2TDataCollator
 logger = logging.getLogger(__name__)
 
 
+
+
 def main(args):
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
-    
-
-    parser = HfArgumentParser(
-        (ModelArguments, DataArguments, TrainingArguments)
+    parser = HfArgumentParser((ModelArguments, DataArguments, TrainingArguments)
     )
-
     # we will load the arguments from a json file,
     # Check out https://huggingface.co/docs/transformers/v4.48.0/en/main_classes/trainer#transformers.TrainingArguments
     # to see what other arguments the TrainingArgument accepts 
@@ -31,7 +29,7 @@ def main(args):
     # "num_cores": 6,
     "model_name_or_path": args.model_name_or_path, #  "t5-small",
     "input_dir":  str(args.input_dir),
-    "output_dir": str(args.output_dir),
+    "output_dir": str(args.output_dir) ,
     "overwrite_output_dir": True,
     "per_device_train_batch_size": 32,
     "gradient_accumulation_steps": 4,
@@ -49,14 +47,12 @@ def main(args):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open( output_dir / "args.json", "w") as f:
+    print(f"[train.py]: {output_dir}")
+    with open( output_dir / "params.json", "w") as f:
         json.dump(args_dict, f)
 
+    model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "params.json")
 
-    
-    
-
-    model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "args.json")
 
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
@@ -129,11 +125,11 @@ def main(args):
 
         output_eval_file = output_dir / "eval_results.txt"
 
-        with open(output_eval_file, "w") as writer:
-            logger.info("***** Eval results *****")
+        with open(output_eval_file, "w") as f:
+            logger.info("Eval results".center(100,'-'))
             for key in sorted(eval_output.keys()):
                 logger.info(f" {key} = {str(eval_output[key])}")
-                writer.write(f"{key} = {str(eval_output[key])}\n")
+                f.write(f"{key} = {str(eval_output[key])}\n")
 
         results.update(eval_output)
 
@@ -147,15 +143,24 @@ def main(args):
 if __name__ == "__main__":
 
     parser = ArgumentParser()
+    parser.add_argument('--input-max-len', default=128)
+    parser.add_argument('--model-name-or-path', default='t5-small')
+    parser.add_argument('--output-max-len', default=32)
+
+    # retrive model name from default value of parser above. 
+    model_name = [a.default  for a in parser._actions if "model-name-or-path" in "".join(a.option_strings)][0]
+
+    # where ever root is chosen it needs to be one level above /inputs where input data is expected to be store. 
+    # /inputs are filled with ./pull_data.sh script 
+
     root = Path(__file__).parent.parent
-    output_dir = root / "outputs"
+    output_dir = root / "outputs" / model_name
     input_dir = root / "inputs"
 
-    parser.add_argument('--input-max-len', default=128)
     parser.add_argument('--output-dir', default=output_dir)
     parser.add_argument('--input-dir', default=input_dir)
     parser.add_argument("--root-dir", default=root)
-    parser.add_argument('--model-name-or-path', default='t5-small')
-    parser.add_argument('--output-max-len', default=32)
+
     args = parser.parse_args()
     main(args)
+    test(args)

@@ -48,8 +48,6 @@ def convert_to_features(batch, args):
         "target_ids": target_encodings["input_ids"],
         "target_attention_mask": target_encodings["attention_mask"],
     }
-    # print("encodings['target_ids']: ", encodings['target_ids'][:1])
-    assert set(["input_ids", "attention_mask", "target_ids", "target_attention_mask"]) == set(encodings.keys()), "encodings distribution did not match"
     return encodings
 
 
@@ -147,7 +145,7 @@ def build_dataset(data_file):
             if len(l["long_answer_candidates"]) > 2:
                 valid_questions.append(l)
 
-    print("num valid:", len(valid_questions))
+    print("[data.py::build_dataset] Num. examples:", len(valid_questions))
 
     datapoints = {}
     datapoints["input_text"] = []
@@ -188,7 +186,7 @@ def build_dataset(data_file):
 
     if DEBUG:
         ds_size = 128
-        print(f"[data.py]: DEBUG={DEBUG=} --> only using {ds_size} datapoints.")
+        print(f"[data.py::build_dataset]: DEBUG={DEBUG=} --> only using {ds_size} datapoints.")
         datapoints["input_text"] = datapoints["input_text"][:128] 
         datapoints["target_text"] = datapoints["target_text"][:128]
         print("")
