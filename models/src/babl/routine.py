@@ -94,13 +94,7 @@ def routine(args, model, tokenizer):
     set_seed(train_args.seed)
 
     # Load pretrained model and tokenizer
-    tokenizer = tok.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name
-        else model_args.model_name_or_path,
-        cache_dir=cache_dir,
-    )
-
+    tokenizer = tok.from_pretrained(model_args.model_name_or_path,cache_dir=cache_dir)
     model = model.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=cache_dir,
@@ -137,14 +131,14 @@ def routine(args, model, tokenizer):
     # Evaluation
     results = {}
     if train_args.do_eval and train_args.local_rank in [-1, 0]:
-        logger.info("*** Evaluate ***")
+        logger.info("Validation".center("="*100))
 
         eval_output = trainer.evaluate()
 
         output_eval_file = output_dir / "eval_results.txt"
 
         with open(output_eval_file, "w") as f:
-            logger.info("Eval results".center(100,'-'))
+            logger.info("Rsults".center(100,'-'))
             for key in sorted(eval_output.keys()):
                 logger.info(f" {key} = {str(eval_output[key])}")
                 f.write(f"{key} = {str(eval_output[key])}\n")
@@ -193,3 +187,35 @@ if __name__=="__main__":
     model = tm['model'].from_pretrained(full_model_name, cache_dir=cache_dir)
     routine(args, tok, model)
     test(args, tok, model)
+    
+    print("FINISED".center("=", 100))
+    s = '''
+                            @@@@@@@@@@@@@@@@@@@@@@@@@                           
+                      ,@@@@@@@@@@@            #@@@@@@@@@@@                      
+                   @@@@@@      @@@@           @@@      @@@@@@&                  
+                @@@@@          &@@@   ,@@@@@@@@@@          @@@@@.               
+              @@@@@@      @@@@@@@@@   ,@@@   /@@   @@@      @@@@@@@             
+            @@@@  @@@@@    @@@@       ,@@@        @@@@@@@@@@@@# @@@@@           
+          @@@@      @@@@@   @@@@  .@@@@@@@@@@@  @@@@   @@@@@      @@@@          
+         @@@@     @@@@@       @@@@@@@@@@@@@@@@@@@@@                 @@@@        
+        @@@@     @@@@@.    @@@@@@@@   ,@@@   @@@@@@@@@    @@@@@@     @@@@       
+       @@@@         @@@@@@@@@    @@@@@@@@@@@@@@@   @@@@@@@@@@@@@@     @@@(      
+      @@@@@@@@@@@@(     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     @@@@@@@@@@@@      
+      @@@.    @@@@     @@@  %@@@@@@@@@@@@@@@@@@@@@@@  @@@@     @@      @@@&     
+      @@@     @@@     @@@@  @@@@@@@@@@@@@@@@@@@@@@@@   @@@             @@@@     
+      @@@     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    @@@@     
+      @@@             @@@@  @@@@@@@@@@@@@@@@@@@@@@@@   @@@     @@@#    @@@@     
+      @@@(    @@@@     @@@  @@@@@@@@@@@@@@@@@@@@@@@@@ @@@@     @@@.    @@@#     
+      @@@@@@@@@@@@@    %@@@@@@.@@@@@@@@@@@@@@@@@@@@@@@@@@     &@@@@@@@@@@@      
+       @@@@     @@@@@@@@@@@@@@  @@@@@@@@@@@@@@@@   @@@@@@@@@@.        @@@       
+        @@@@     @@@@@     @@@@@@@@    @@@    @@@@@@@      @@@@.     @@@#       
+         @@@@                %@@@@@@@@@@@@@@@@@@@@@      %@@@@     /@@@         
+          @@@@@     @@@@@@  @@@@    @@@@@@@@%   #@@@#  *@@@@.     @@@@          
+            @@@@, @@@@/@@@@@@@@        @@@        @@@@    @@@@@ @@@@            
+              @@@@@@       @@   @@@@%  @@@  .@@@@@@@@@      /@@@@@,             
+                @@@@@@          @@@@@@@@@@   @@@@          @@@@@                
+                   @@@@@@@     @@@@           @@@(     @@@@@@                   
+                       @@@@@@@@@@@            .@@@@@@@@@@                       
+                            .@@@@@@@@@@@@@@@@@@@@@@@                            
+        '''
+    print(s)
