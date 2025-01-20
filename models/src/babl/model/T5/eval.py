@@ -3,14 +3,8 @@
 from .config import ModelArguments
 from transformers import HfArgumentParser
 from .utils import clean
-
 from pathlib import Path
 # local data igestion path
-
-
-
-parser = HfArgumentParser(ModelArguments)
-
 from collections import Counter
 import string
 import re
@@ -20,6 +14,7 @@ from tqdm.auto import tqdm
 
 set_seed(42)
 
+parser = HfArgumentParser(ModelArguments)
 
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
@@ -109,7 +104,7 @@ def test(args):
         predictions.append(clean(pred))
         references.append(clean(tokenizer.decode(ref["target_ids"])))
     from pprint import pprint 
-    print("References:")
+    print(f"[{__file__}::test ] References:")
     pprint(references)
     print(checkpoint_path, evaluate(references, predictions))
-    
+
