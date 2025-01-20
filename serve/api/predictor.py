@@ -1,5 +1,5 @@
 from transformers import T5Tokenizer, T5ForConditionalGeneration
-
+import os 
 import torch 
 from babl.model.T5.eval import clean 
 from pprint import pprint 
@@ -44,9 +44,8 @@ class Predictor:
 
 if __name__ == "__main__":
 
-    model_path= Path('/home/nameduser/Code/babl/outputs/checkpoint-1')
+    model_path= Path(os.getenv("MODEL_PATH", f"/usrs/src/app/outputs/{os.getenv('MODEL_NAME', 't5-small')}/checkpoint-1"))
     tok_path=  model_path.parent
-
 
     tok = T5Tokenizer.from_pretrained(tok_path)
     m = T5ForConditionalGeneration.from_pretrained(model_path)
