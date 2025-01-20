@@ -37,8 +37,8 @@ if __name__ == "__main__":
     full_model_name = MODELS_CHOICES[model_name][0]
     args.model_name_or_path=full_model_name
 
-    print(f"{full_model_name=}")
-    print(f"{args.model_name_or_path=}")
+    print(f"[fit.py]::__main__{full_model_name=}")
+    print(f"[fit.py]::__main__{args.model_name_or_path=}")
 
     tok = tm['tok'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
     model = tm['model'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
