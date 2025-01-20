@@ -44,7 +44,7 @@ class Predictor:
 
 if __name__ == "__main__":
 
-    model_path= Path(os.getenv("MODEL_PATH", f"/usrs/src/app/outputs/{os.getenv('MODEL_NAME', 't5-small')}/checkpoint-1"))
+    model_path= Path(os.getenv("MODEL_PATH", f"/usr/src/app/outputs/{os.getenv('MODEL_NAME', 't5-small')}/checkpoint-1"))
     tok_path=  model_path.parent
 
     tok = T5Tokenizer.from_pretrained(tok_path)
