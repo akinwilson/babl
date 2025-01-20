@@ -13,7 +13,7 @@ class InferenceInput(BaseModel):
         ..., example="Where is London located?", title="Example question."
     )
     context: Optional[str] = Field(
-        ..., example="Frankfurt is in Germany", title="Example unhelpful context to aid question"
+        ..., example="London is in England.", title="Example unhelpful context to aid question"
     )
 
 

@@ -12,7 +12,11 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForCausal
 from .data import prepare_dataset
 from argparse import ArgumentParser 
 from .T5.config import ModelArguments, DataArguments
+from .T5.eval import test 
+
 from .data import T2TDataCollator
+from .metrics import test 
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +30,6 @@ MODELS_CHOICES = {
     "bert": ['google-bert/bert-base-uncased'],
     "bloom": ["bigscience/bloom"]}
 # just choosing smallest t5 model for now 
-MODELS_CHOICES[model_name][0]
-
-
 MODELS = { 
     "t5": {"tok": T5Tokenizer, "model": T5ForConditionalGeneration},
     "llama":{"tok": AutoTokenizer, "model":AutoModelForCausalLM} ,
@@ -36,11 +37,7 @@ MODELS = {
     "bloom": {"tok":AutoTokenizer, "model":AutoModelForCausalLM}}
 
 
-tm = MODELS[model_name]
-tok = tm['tok'].from_pretrained(model_name_or_path=MODELS_CHOICES[model_name][0])
-model = tm['model'].from_pretrained(model_name_or_path=MODELS_CHOICES[model_name][0])
-
-def main(model_name=os.getenv("MODEL_NAME", "t5")):
+def routine(args, model, tokenizer):
 
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
@@ -66,7 +63,6 @@ def main(model_name=os.getenv("MODEL_NAME", "t5")):
     "num_train_epochs": 1,
     }
 
-
     output_dir = Path(args.output_dir)
     input_dir = Path(args.input_dir)
 
@@ -79,6 +75,9 @@ def main(model_name=os.getenv("MODEL_NAME", "t5")):
     model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "params.json")
 
 
+    
+    cache_dir = Path(args.root_dir) / model_args.cache_dir 
+    cache_dir.mkdir(parents=True, exist_ok=True)
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
     prepare_dataset(args, data_args)
@@ -101,16 +100,16 @@ def main(model_name=os.getenv("MODEL_NAME", "t5")):
     set_seed(train_args.seed)
 
     # Load pretrained model and tokenizer
-    tokenizer = T5Tokenizer.from_pretrained(
+    tokenizer = tok.from_pretrained(
         model_args.tokenizer_name
         if model_args.tokenizer_name
         else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
+        cache_dir=cache_dir,
     )
 
-    model = T5ForConditionalGeneration.from_pretrained(
+    model = model.from_pretrained(
         model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
+        cache_dir=cache_dir,
     )
 
     # Get datasets
@@ -160,3 +159,35 @@ def main(model_name=os.getenv("MODEL_NAME", "t5")):
 
     return results
 
+
+if __name__=="__main__":
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('--input-max-len', default=128)
+    parser.add_argument('--model-name-or-path', default='t5')
+    parser.add_argument('--output-max-len', default=32)
+
+    # retrive model name from default value of parser above. 
+    model_name = [a.default  for a in parser._actions if "model-name-or-path" in "".join(a.option_strings)][0]
+
+    # where ever root is chosen it needs to be one level above /inputs where input data is expected to be store. 
+    # /inputs are filled with ./pull_data.sh script 
+
+    root = Path(__file__).parent.parent
+    output_dir = root / "outputs" / model_name
+    input_dir = root / "inputs"
+    cache_dir = root / "cache"
+
+    parser.add_argument('--output-dir', default=output_dir)
+    parser.add_argument('--input-dir', default=input_dir)
+    parser.add_argument("--root-dir", default=root)
+
+    args = parser.parse_args()
+
+    # how to start routien 
+    tm = MODELS[args.model_name]
+    full_model_name = MODELS_CHOICES[args.model_name][0]
+    tok = tm['tok'].from_pretrained(model_name_or_path=full_model_name, cache_dir=cache_dir)
+    model = tm['model'].from_pretrained(model_name_or_path=full_model_name, cache_dir=cache_dir)
+    main(args, tok, model)
+    test(args, tok, model)

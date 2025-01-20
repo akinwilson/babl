@@ -44,6 +44,7 @@ def main(args):
 
     output_dir = Path(args.output_dir)
     input_dir = Path(args.input_dir)
+    
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -52,8 +53,8 @@ def main(args):
         json.dump(args_dict, f)
 
     model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "params.json")
-
-
+    cache_dir = Path(args.input_dir).parent / model_args.cache_dir
+    cache_dir.mkdir(parents=True, exist_ok=True)
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
     prepare_dataset(args, data_args)
@@ -80,12 +81,12 @@ def main(args):
         model_args.tokenizer_name
         if model_args.tokenizer_name
         else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
+        cache_dir=cache_dir,
     )
 
     model = T5ForConditionalGeneration.from_pretrained(
         model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
+        cache_dir=cache_dir,
     )
 
     # Get datasets
