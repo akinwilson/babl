@@ -11,8 +11,6 @@ Causally and masked pretrained deep learning networks have been applied to a var
 4) [BERT](https://en.wikipedia.org/wiki/BERT_(language_model))
 
 
-
-
 ## Usage
 To prop up all services; the fine-tuning of the models, model serving and webserver application, run
 
@@ -80,11 +78,15 @@ ALongside training and delopying the models, this library implements an experime
 2) Dataset: ([**x**,**c**],**y**)
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
 
-## Todo 19 Jan 2025
-- [ ] locally train and query T5 model from the command line 
-- [ ] retrieve bloom, LLaMA and BERT models and apply the same
-- [ ] develop the serving framework, using fastAPI.  
-- [ ] Django full-stack (https://dev.to/documatic/build-a-chatbot-using-python-django-46hb) to allow for interaction with models, storing and retriewing of conversations
+## Todo 20 Jan 2025
+- [ ] Test fiting for every model. You can now fit each model with a single command ; `python fit.py --model-name-or-path {t5,llama,bloom,bert}`
+- [ ] Containerised the serving container and test along with fine-tuning job and application webserver the end to end application 
+- [ ] Developed frontend in chatapp application. Can used [this project](https://github.com/meghsohor/chat-app-vanilla-js/tree/master) as a guide
+- [ ] Store chat conversations on the backend with djangos database integration. 
+- [x] locally train and query T5 model from the command line 
+- [x] retrieve bloom, LLaMA and BERT models and apply the same
+- [x] develop the serving framework, using fastAPI.  
+- [x] Django full-stack (https://dev.to/documatic/build-a-chatbot-using-python-django-46hb) to allow for interaction with models, storing and retriewing of conversations
 - [ ] Write tests 
 - [x] installable python package
 - [ ] Automated testing with GH actions 
