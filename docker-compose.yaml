@@ -5,15 +5,25 @@ services:
     build:
       context: ./fit 
       dockerfile: Dockerfile.fit 
+    volume:
+      - ./inputs:/usr/src/app/inputs
+      - ./outputs:/usrc/src/app/outputs
   serving:
     container_name: serve 
     build: 
       context: ./serve 
-      dockerfile: Dockerfile.serve 
+      dockerfile: Dockerfile.serve
+    volume:
+      - ./outputs:/usr/src/app/outputs
+    ports:
+      - 6000:80
   webserver:
     container_name: web
     build:
       context: ./web 
-      dockerfile: Dockerfile.web 
+      dockerfile: Dockerfile.web
+    ports:
+      - 7000:8000
+
     
 
