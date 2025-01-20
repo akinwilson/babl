@@ -11,25 +11,15 @@ from argparse import ArgumentParser
 from .model.T5.config import ModelArguments, DataArguments
 from .metrics import test 
 from .data import T2TDataCollator
-from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForCausalLM, T5ForConditionalGeneration, T5Tokenizer
+from .models import MODELS_CHOICES, MODELS
 
-
-
+    # Setup logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO, # if train_args.local_rank in [-1, 0] else logging.WARN, # for distributed training 
+)
 logger = logging.getLogger(__name__)
-
-
-MODELS_CHOICES = {
-    "t5": ['t5-small', 't5-base', 't5-large','t5-3b','t5-11b'],
-    "llama": ['meta-llama/Llama-3.3-70B-Instruct'],
-    "bert": ['google-bert/bert-base-uncased'],
-    "bloom": ["bigscience/bloom"]}
-# just choosing smallest t5 model for now 
-MODELS = { 
-    "t5": {"tok": T5Tokenizer, "model": T5ForConditionalGeneration},
-    "llama":{"tok": AutoTokenizer, "model":AutoModelForCausalLM} ,
-    "bert": {"tok":AutoTokenizer, "model":AutoModelForMaskedLM},
-    "bloom": {"tok":AutoTokenizer, "model":AutoModelForCausalLM}}
-
 
 def routine(args, model, tokenizer):
 
@@ -62,31 +52,23 @@ def routine(args, model, tokenizer):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"[routine.py]: {output_dir}")
+    print(f"[routine.py]::{output_dir=}")
     with open( output_dir / "params.json", "w") as f:
         json.dump(args_dict, f)
 
     model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "params.json")
-
-
+    
+    print(f"[routine.py]::{model_args=}")
+    
     
     cache_dir = Path(args.root_dir) / model_args.cache_dir 
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
     prepare_dataset(args, data_args)
-    ###
-
-       
+    print("[routine.py]::finished preparing dataset")
     if (os.path.exists(output_dir) and train_args.do_train and not train_args.overwrite_output_dir ):
         raise ValueError(f"Output directory ({output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome.")
-
-    # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO if train_args.local_rank in [-1, 0] else logging.WARN,
-    )
     logger.warning(f"Process rank: {train_args.local_rank}, device: {train_args.device}, n_gpu: {train_args.n_gpu}, distributed training: {bool(train_args.local_rank != -1)}, 16-bits training: {train_args.fp16}")
     # logger.info(f"Training/evaluation parameters:\n{train_args}")
 
@@ -99,7 +81,9 @@ def routine(args, model, tokenizer):
         model_args.model_name_or_path,
         cache_dir=cache_dir,
     )
-
+    print(f"[routine.py]::{tokenizer=}")
+    
+    
     # Get datasets
     train_filepath = input_dir / data_args.proccessed_train_filename
     val_filepath = input_dir / data_args.proccessed_val_filename
@@ -123,7 +107,7 @@ def routine(args, model, tokenizer):
             if os.path.isdir(model_args.model_name_or_path)
             else None # load from fs if avialable else download
         )
-        print("loss: ", loss)
+        print(f"[routine.py]::loss:{loss}")
         trainer.save_model()
         # print("train.__dict__()", trainer.__dict__)
         tokenizer.save_pretrained(output_dir)
@@ -146,6 +130,12 @@ def routine(args, model, tokenizer):
         results.update(eval_output)
 
     return results
+
+
+
+
+
+
 
 
 if __name__=="__main__":
