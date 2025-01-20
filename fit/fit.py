@@ -14,13 +14,15 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
     parser.add_argument('--input-max-len', default=128)
-    parser.add_argument('--model-name-or-path', default='t5-small')
+    parser.add_argument('--model-name-or-path', default='t5-small', choices=['t5-small', 't5-base', 't5-large','t5-3b','t5-11b'])
     parser.add_argument('--output-max-len', default=32)
     # retrive model name from default value of parser above. 
     model_name = [a.default  for a in parser._actions if "model-name-or-path" in "".join(a.option_strings)][0]
 
     root = Path(__file__).parent.parent
     output_dir = root / "outputs" / model_name
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     input_dir = root / "inputs"
     parser.add_argument('--output-dir', default=output_dir)
     parser.add_argument('--input-dir', default=input_dir)
