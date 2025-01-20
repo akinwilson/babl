@@ -1,11 +1,12 @@
 # F1: https://en.wikipedia.org/wiki/F-score
 ## SQuAD evaluation script. Modifed slightly for this notebook
-from config import ModelArguments
+from .config import ModelArguments
 from transformers import HfArgumentParser
+from .utils import clean
 
 from pathlib import Path
-# local data igestion path 
-val_data_path = str(Path(__file__).parent.resolve() / "valid_data.pt" )
+# local data igestion path
+
 
 
 parser = HfArgumentParser(ModelArguments)
@@ -13,15 +14,9 @@ parser = HfArgumentParser(ModelArguments)
 from collections import Counter
 import string
 import re
-import argparse
-import json
-import sys
-import os
 import torch
-import nlp
 from transformers import T5ForConditionalGeneration, T5Tokenizer, set_seed
 from tqdm.auto import tqdm
-from os import listdir
 
 set_seed(42)
 
@@ -76,48 +71,43 @@ def evaluate(gold_answers, predictions):
     return {"exact_match": exact_match, "f1": f1}
 
 
-def clean(result):
-    result = result.replace("<pad>", "")
-    result = result.replace("</s>", "")
-    result = result.strip()
-    result = result.lower()
-    return result
+def test(args):    
+    
+    model_path = Path(args.output_dir)
+    checkpoint =  model_path /  "checkpoint-1" # ""
+
+    # for checkpoint in listdir(checkpoints):
+    # model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
+    try:
+        model = T5ForConditionalGeneration.from_pretrained(checkpoint).to("cuda")
+    except:
+        print(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint} path didnt work")
+        model = T5ForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=args.model_name_or_path).to("cuda")
+
+    tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)#  "t5-small")
 
 
-model_path = "models/gpu/checkpoint-11000"
-# model_path = "models/gpu/"
-checkpoint = ""
+    val_path = Path(args.input_dir) / "valid_data.pt"
+    val_ds = torch.load(val_path)
+    dl = torch.utils.data.DataLoader(val_ds, batch_size=28)
 
+    answers = []
+    for batch in dl:
+        outs = model.generate(
+            input_ids=batch["input_ids"].to("cuda"),
+            attention_mask=batch["attention_mask"].to("cuda"),
+            max_length=16,
+            early_stopping=True,
+        )
+        outs = [tokenizer.decode(ids) for ids in outs]
+        answers.extend(outs)
 
-# for checkpoint in listdir(checkpoints):
-# model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
-try:
-    model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
-except:
-    model = T5ForConditionalGeneration.from_pretrained(pretrained_model_name_or_path="t5-small").to("cuda")
-
-tokenizer = T5Tokenizer.from_pretrained("t5-small")
-
-
-
-valid_dataset = torch.load(val_data_path)
-dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=28)
-
-answers = []
-for batch in dataloader:
-    outs = model.generate(
-        input_ids=batch["input_ids"].to("cuda"),
-        attention_mask=batch["attention_mask"].to("cuda"),
-        max_length=16,
-        early_stopping=True,
-    )
-    outs = [tokenizer.decode(ids) for ids in outs]
-    answers.extend(outs)
-
-predictions = []
-references = []
-for ref, pred in zip(valid_dataset, answers):
-    predictions.append(clean(pred))
-    references.append(clean(tokenizer.decode(ref["target_ids"])))
-
-print(checkpoint, evaluate(references, predictions))
+    predictions = []
+    references = []
+    for ref, pred in zip(val_ds, answers):
+        predictions.append(clean(pred))
+        references.append(clean(tokenizer.decode(ref["target_ids"])))
+    from pprint import pprint 
+    print("References:")
+    pprint(references)
+    print(checkpoint, evaluate(references, predictions))

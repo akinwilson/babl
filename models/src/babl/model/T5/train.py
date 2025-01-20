@@ -25,7 +25,6 @@ def main(args):
     )
 
     # we will load the arguments from a json file,
-    # make sure you save the arguments in at ./args.json
     # Check out https://huggingface.co/docs/transformers/v4.48.0/en/main_classes/trainer#transformers.TrainingArguments
     # to see what other arguments the TrainingArgument accepts 
     args_dict = {
@@ -34,12 +33,12 @@ def main(args):
     "input_dir":  str(args.input_dir),
     "output_dir": str(args.output_dir),
     "overwrite_output_dir": True,
-    "per_gpu_train_batch_size": 2,
-    "per_gpu_eval_batch_size": 8,
+    "per_device_train_batch_size": 32,
     "gradient_accumulation_steps": 4,
     "learning_rate": 1e-4,
     "tpu_num_cores": 8,
     "do_train": True,
+    "do_eval": True,  
     "remove_unused_columns": False, # this caused me many issues with the collator. Moving over to pytorch lighnting to handling training routine
     "num_train_epochs": 1,
     }
@@ -57,20 +56,15 @@ def main(args):
     
     
 
-    model_args, data_args, train_args = parser.parse_json_file(
-        json_file= output_dir / "args.json"
-    )
+    model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "args.json")
+
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
     prepare_dataset(args, data_args)
     ###
 
        
-    if (
-        os.path.exists(output_dir)
-        and train_args.do_train
-        and not train_args.overwrite_output_dir
-    ):
+    if (os.path.exists(output_dir) and train_args.do_train and not train_args.overwrite_output_dir ):
         raise ValueError(f"Output directory ({output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome.")
 
     # Setup logging
@@ -151,13 +145,17 @@ def main(args):
 
 
 if __name__ == "__main__":
+
     parser = ArgumentParser()
+    root = Path(__file__).parent.parent
+    output_dir = root / "outputs"
+    input_dir = root / "inputs"
+
     parser.add_argument('--input-max-len', default=128)
-    parser.add_argument('--output-dir', default="outputs")
-    parser.add_argument('--input-dir', default="inputs")
-    parser.add_argument("--root-dir", default=Path().cwd().parent.parent.parent.parent.parent)
+    parser.add_argument('--output-dir', default=output_dir)
+    parser.add_argument('--input-dir', default=input_dir)
+    parser.add_argument("--root-dir", default=root)
     parser.add_argument('--model-name-or-path', default='t5-small')
     parser.add_argument('--output-max-len', default=32)
-
     args = parser.parse_args()
     main(args)

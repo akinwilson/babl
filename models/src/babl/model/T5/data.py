@@ -1,19 +1,15 @@
 import json
 import random
-from dataclasses import dataclass
 from nlp import Dataset
 from pathlib import Path 
 from functools import partial
 from transformers import T5Tokenizer
 import torch 
-
-from pprint import pprint 
-
 random.seed(42)
-
 
 # creating a baby dataset for debugging purposes 
 DEBUG = True 
+
 class T2TDataCollator:
     def __call__(self, batch):
         """
@@ -28,13 +24,15 @@ class T2TDataCollator:
         lm_labels[lm_labels[:, :] == 0] = -100
         attention_mask = torch.stack([x["attention_mask"] for x in batch])
         decoder_attention_mask = torch.stack([x["target_attention_mask"] for x in batch])
-        ####### NOTICE WE HAVE LABELS instead of TARGET_IDS 
+        ####### NOTICE WE HAVE LABELS instead of TARGET_IDS the model expects these as inputs 
         return {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
             "labels": lm_labels,
             "decoder_attention_mask": decoder_attention_mask,
         }
+
+
 
 
 
@@ -70,33 +68,33 @@ def prepare_dataset(args, data_args):
     test_path = input_dir / data_args.val_filename 
     ##################################################################
 
-    train_dataset = build_dataset(train_path)
-    valid_dataset = build_dataset(test_path)
+    tds = build_dataset(train_path)
+    vds = build_dataset(test_path)
 
 
     txt2feats = partial(convert_to_features, args=args)
     # map convert_to_features batch wise
-    train_dataset = train_dataset.map(txt2feats, batched=True)
-    # print("train_dataset: ")
-    # pprint(train_dataset)
-    # valid_dataset = valid_dataset.map(add_eos_to_examples, load_from_cache_file=False)
-    valid_dataset = valid_dataset.map(
+    tds = tds.map(txt2feats, batched=True)
+    # print("tds: ")
+    # pprint(tds)
+    # vds = vds.map(add_eos_to_examples, load_from_cache_file=False)
+    vds = vds.map(
         txt2feats, batched=True, load_from_cache_file=False
     )
 
     # set the tensor type and the columns which the dataset should return
     columns = ["input_ids", "target_ids", "attention_mask", "target_attention_mask"]
-    train_dataset.set_format(type="torch", columns=columns)
-    valid_dataset.set_format(type="torch", columns=columns)
+    tds.set_format(type="torch", columns=columns)
+    vds.set_format(type="torch", columns=columns)
     
-    # print("train_dataset")
-    # pprint(train_dataset)
+    # print("tds")
+    # pprint(tds)
 
     t_fpath = input_dir / data_args.proccessed_train_filename # "train_data.pt"
     v_fpath = input_dir / data_args.proccessed_val_filename
 
-    torch.save(train_dataset, t_fpath)
-    torch.save(valid_dataset, v_fpath)
+    torch.save(tds, t_fpath)
+    torch.save(vds, v_fpath)
 
 
 
@@ -189,7 +187,9 @@ def build_dataset(data_file):
 
 
     if DEBUG:
+        ds_size = 128
+        print(f"[data.py]: DEBUG={DEBUG=} --> only using {ds_size} datapoints.")
         datapoints["input_text"] = datapoints["input_text"][:128] 
         datapoints["target_text"] = datapoints["target_text"][:128]
-
+        print("")
     return Dataset.from_dict(datapoints)
