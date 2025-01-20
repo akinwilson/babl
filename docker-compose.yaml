@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.fit 
     volume:
       - ./inputs:/usr/src/app/inputs
-      - ./outputs:/usrc/src/app/outputs
+      - ./outputs:/usr/src/app/outputs
   serving:
     container_name: serve 
     build: 

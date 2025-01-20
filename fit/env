@@ -1,0 +1,2 @@
+# choices: {t5,llama,bloom,bert}
+MODEL_NAME=t5

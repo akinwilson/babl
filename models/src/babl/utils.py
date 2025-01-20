@@ -1,3 +1,4 @@
+import torch 
 
 def clean(x):
     return x.replace("<pad>", "").replace("</s>", "").strip().lower()
@@ -5,7 +6,7 @@ def clean(x):
 
 class Predictor:
 
-    def __init__(self, tokenizer, model, max_len=32):
+    def __init__(self, tokenizer, model, max_len=64):
         self.tok = tokenizer
         self.m = model
         self.max_len=max_len

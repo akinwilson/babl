@@ -20,15 +20,17 @@ To prop up all services; the fine-tuning of the models, model serving and webser
 docker-compose -f docker-compose.yaml
 ```
 
-To fit outside of a container, run 
+Once the fine-tuning job has been completed (which should be apparent from the logs), the serving container will have a [interactive API documentation page](https://fastapi.tiangolo.com/features/#based-on-open-standards) accessible for end users to test out the inference API directly. This will be accessible from:
 
 ```
-pip install -r ./models 
+http://localhost:6000/docs
 ```
-and 
+
+there will also be a webserver serving an application allowing end users to test out the inference API via recording their own clips and posting them to the API through a simple user interface. This will be accessible from:
 ```
-python fit/train.py
+http://localhost:7000
 ```
+
 
 
 ## Installation 
@@ -47,9 +49,8 @@ If you would like to run the `fit/fit.py` script to train a model and need the d
 ./pull_data.sh
 ```
 
-
-
 ## Running tests
+
 
 
 ## Citation 

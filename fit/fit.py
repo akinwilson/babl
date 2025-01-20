@@ -1,31 +1,27 @@
-from babl.model.T5.train import main
-from babl.model.T5.eval import test  
-from babl.model.T5.data import prepare_dataset 
-
-# from babl.model.llama import tokenizer as llama_tok 
-# from babl.model.llama import model as llama_model 
-# from babl.model.bert import tokenizer as bert_tok
-# from babl.model.bert import  model as bert_model
-# from babl.model.bloom import  model as bloom_model
-# from babl.model.bloom import tokenizer as bloom_tok
-
+from babl.metrics import test  
+from babl.routine import routine
+from babl.models import MODELS, MODELS_CHOICES 
 from argparse import ArgumentParser
 from pathlib import Path 
 import warnings 
 import os 
-
 warnings.filterwarnings("ignore")
 
 if __name__ == "__main__":
 
     parser = ArgumentParser()
+    ## can select models via 
+    # t5,llama,bloom,bert
     parser.add_argument('--input-max-len', default=128)
     parser.add_argument('--model-name-or-path', default=os.getenv("MODEL_NAME", "t5"), choices=MODELS_CHOICES[os.getenv("MODEL_NAME", "t5")])
     parser.add_argument('--output-max-len', default=32)
     # retrive model name from default value of parser above. 
+    
     model_name = [a.default  for a in parser._actions if "model-name-or-path" in "".join(a.option_strings)][0]
 
     root = Path(__file__).parent.parent
+    cache_dir = root / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
     output_dir = root / "outputs" / model_name
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -35,5 +31,17 @@ if __name__ == "__main__":
     parser.add_argument("--root-dir", default=root)
 
     args = parser.parse_args()
-    main(args)
-    test(args)
+ 
+
+    tm = MODELS[model_name]
+    full_model_name = MODELS_CHOICES[model_name][0]
+    args.model_name_or_path=full_model_name
+
+    print(f"{full_model_name=}")
+    print(f"{args.model_name_or_path=}")
+
+    tok = tm['tok'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
+    model = tm['model'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
+    
+    routine(args, tok, model)
+    test(args, tok, model)

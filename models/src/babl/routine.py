@@ -5,24 +5,18 @@ import os
 from pathlib import Path
 # import transformers 
 # transformers.logging.set_verbosity_info()
-from transformers import T5ForConditionalGeneration, T5Tokenizer,HfArgumentParser, Trainer, TrainingArguments, set_seed
-from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForCausalLM
-
-
+from transformers import HfArgumentParser, Trainer, TrainingArguments, set_seed
 from .data import prepare_dataset
 from argparse import ArgumentParser 
-from .T5.config import ModelArguments, DataArguments
-from .T5.eval import test 
-
-from .data import T2TDataCollator
+from .model.T5.config import ModelArguments, DataArguments
 from .metrics import test 
+from .data import T2TDataCollator
+from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForCausalLM, T5ForConditionalGeneration, T5Tokenizer
+
 
 
 logger = logging.getLogger(__name__)
 
-
-
-model_name = "t5"
 
 MODELS_CHOICES = {
     "t5": ['t5-small', 't5-base', 't5-large','t5-3b','t5-11b'],
@@ -49,7 +43,7 @@ def routine(args, model, tokenizer):
     # to see what other arguments the TrainingArgument accepts 
     args_dict = {
     # "num_cores": 6,
-    "model_name_or_path": model_name, #  "t5-small",
+    "model_name_or_path": args.model_name_or_path, #   "t5-small",
     "input_dir":  str(args.input_dir),
     "output_dir": str(args.output_dir) ,
     "overwrite_output_dir": True,
@@ -173,7 +167,8 @@ if __name__=="__main__":
     # where ever root is chosen it needs to be one level above /inputs where input data is expected to be store. 
     # /inputs are filled with ./pull_data.sh script 
 
-    root = Path(__file__).parent.parent
+    root = Path(__file__).parent.parent.parent 
+
     output_dir = root / "outputs" / model_name
     input_dir = root / "inputs"
     cache_dir = root / "cache"
@@ -184,10 +179,17 @@ if __name__=="__main__":
 
     args = parser.parse_args()
 
-    # how to start routien 
+    # how to start routine. select model flavours given architecture name
     tm = MODELS[args.model_name]
-    full_model_name = MODELS_CHOICES[args.model_name][0]
-    tok = tm['tok'].from_pretrained(model_name_or_path=full_model_name, cache_dir=cache_dir)
-    model = tm['model'].from_pretrained(model_name_or_path=full_model_name, cache_dir=cache_dir)
-    main(args, tok, model)
+    # select the first model flavour in the list 
+    full_model_name = MODELS_CHOICES[args.model_name_or_path][0]
+    print(f"{full_model_name=}")
+
+
+    args.model_name_or_path = full_model_name
+    print(f"{args.model_name_or_path=}")
+
+    tok = tm['tok'].from_pretrained(full_model_name, cache_dir=cache_dir)
+    model = tm['model'].from_pretrained(full_model_name, cache_dir=cache_dir)
+    routine(args, tok, model)
     test(args, tok, model)

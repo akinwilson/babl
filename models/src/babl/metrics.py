@@ -1,6 +1,6 @@
 # F1: https://en.wikipedia.org/wiki/F-score
 ## SQuAD evaluation script. Modifed slightly for this notebook
-from .config import ModelArguments
+from  .model.T5.config import ModelArguments
 from transformers import HfArgumentParser
 from .utils import clean
 from pathlib import Path
@@ -9,7 +9,7 @@ from collections import Counter
 import string
 import re
 import torch
-from transformers import T5ForConditionalGeneration, T5Tokenizer, set_seed
+from transformers import  set_seed
 from tqdm.auto import tqdm
 
 set_seed(42)
@@ -71,7 +71,7 @@ def test(args, model, tokenizer):
     model_path = Path(args.output_dir)
     
     checkpoint_path =  model_path /  "checkpoint-1" # ""
-    print(f"[train.py::test]: {checkpoint_path=}")
+    print(f"[metrics.py::test]: {checkpoint_path=}")
     # for checkpoint in listdir(checkpoints):
     # model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
     try:
