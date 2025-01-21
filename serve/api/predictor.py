@@ -1,9 +1,27 @@
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+# from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForCausalLM, T5ForConditionalGeneration, T5Tokenizer
+import logging 
 import os 
 import torch 
-from babl.model.T5.eval import clean 
+# from babl.model.T5.eval import clean 
+from babl.utils import clean
+from babl.models import MODELS, MODELS_CHOICES
 from pprint import pprint 
 from pathlib import Path 
+
+
+logger = logging.getLogger(__name__)
+
+# MODELS_CHOICES = {
+#     "t5": ['t5-small', 't5-base', 't5-large','t5-3b','t5-11b'],
+#     "llama": ['meta-llama/Llama-3.3-70B-Instruct'],
+#     "bert": ['google-bert/bert-base-uncased'],
+#     "bloom": ["bigscience/bloom"]}
+# # just choosing smallest t5 model for now 
+# MODELS = { 
+#     "t5": {"tok": T5Tokenizer, "model": T5ForConditionalGeneration},
+#     "llama":{"tok": AutoTokenizer, "model":AutoModelForCausalLM} ,
+#     "bert": {"tok":AutoTokenizer, "model":AutoModelForMaskedLM},
+#     "bloom": {"tok":AutoTokenizer, "model":AutoModelForCausalLM}}
 
 
 
@@ -44,11 +62,22 @@ class Predictor:
 
 if __name__ == "__main__":
 
-    model_path= Path(os.getenv("MODEL_PATH", f"/usr/src/app/outputs/{os.getenv('MODEL_NAME', 't5-small')}/checkpoint-1"))
-    tok_path=  model_path.parent
+    # NOTICE: we assume that the folder containing the models is called 'checkpoint-1'
+    #         if more than one checkpoint is available, can choose the checkpoint with the highest number 
+    #         or only ever let one checkpoint folder be present; `checkpoint-1`
 
-    tok = T5Tokenizer.from_pretrained(tok_path)
-    m = T5ForConditionalGeneration.from_pretrained(model_path)
+
+    model_path= [p for p in  list(Path("/usr/src/app/outputs").iterdir()) if os.getenv('MODEL_NAME', 't5') in str(p) ][0] / 'checkpoint-1'
+    tok_path=  model_path.parent
+    # model_path= Path(os.getenv("MODEL_PATH", f"/usr/src/app/outputs/{os.getenv('MODEL_NAME', 't5-small')}/checkpoint-1"))
+    tm = MODELS[os.getenv('MODEL_NAME', 't5')]
+    full_model_name = MODELS_CHOICES[os.getenv('MODEL_NAME', 't5')][0]
+ 
+    tok = tm['tok'].from_pretrained(tok_path)
+    m = tm['model'].from_pretrained(model_path)
+
+    # tok = T5Tokenizer.from_pretrained(tok_path)
+    # m = T5ForConditionalGeneration.from_pretrained(model_path)
 
     Predictor(tok, m, max_len =128)("How many countries are there in the United Kingdom?")
 
