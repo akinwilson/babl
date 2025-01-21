@@ -6,33 +6,19 @@ from .utils import clean
 from pathlib import Path
 # local data igestion path
 from collections import Counter
-import string
-import re
+from .utils import normalize_answer
 import torch
 from transformers import  set_seed
 from tqdm.auto import tqdm
 
+
+import logging 
+logger = logging.getLogger(__name__)
+
+
 set_seed(42)
 
 parser = HfArgumentParser(ModelArguments)
-
-def normalize_answer(s):
-    """Lower text and remove punctuation, articles and extra whitespace."""
-
-    def remove_articles(text):
-        return re.sub(r"\b(a|an|the)\b", " ", text)
-
-    def white_space_fix(text):
-        return " ".join(text.split())
-
-    def remove_punc(text):
-        exclude = set(string.punctuation)
-        return "".join(ch for ch in text if ch not in exclude)
-
-    def lower(text):
-        return text.lower()
-
-    return white_space_fix(remove_articles(remove_punc(lower(s))))
 
 
 def f1_score(prediction, ground_truth):
@@ -71,13 +57,13 @@ def test(args, model, tokenizer):
     model_path = Path(args.output_dir)
     
     checkpoint_path =  model_path /  "checkpoint-1" # ""
-    print(f"[metrics.py::test]: {checkpoint_path=}")
+    logger.debug(f"[metrics.py::test]: {checkpoint_path=}")
     # for checkpoint in listdir(checkpoints):
     # model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
     try:
         model = model.from_pretrained(checkpoint_path).to("cuda")
     except:
-        print(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint_path} path didnt work")
+        logger.debug(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint_path} path didnt work")
         model = model.from_pretrained(pretrained_model_name_or_path=args.model_name_or_path).to("cuda")
 
     tokenizer = tokenizer.from_pretrained(args.model_name_or_path)#  "t5-small")
@@ -104,7 +90,7 @@ def test(args, model, tokenizer):
         predictions.append(clean(pred))
         references.append(clean(tokenizer.decode(ref["target_ids"])))
     from pprint import pprint 
-    print(f"[{__file__}::test ] References:")
-    pprint(references)
+    logger.debug(f"[{__file__}::test ] References:")
+    logger.debug(references)
     print(checkpoint_path, evaluate(references, predictions))
 

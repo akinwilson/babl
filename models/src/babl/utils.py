@@ -1,7 +1,31 @@
 import torch 
+import logging 
+import string
+import re
+
+logger = logging.getLogger(__name__)
 
 def clean(x):
     return x.replace("<pad>", "").replace("</s>", "").strip().lower()
+
+
+def normalize_answer(s):
+    """Lower text and remove punctuation, articles and extra whitespace."""
+
+    def remove_articles(text):
+        return re.sub(r"\b(a|an|the)\b", " ", text)
+
+    def white_space_fix(text):
+        return " ".join(text.split())
+
+    def remove_punc(text):
+        exclude = set(string.punctuation)
+        return "".join(ch for ch in text if ch not in exclude)
+
+    def lower(text):
+        return text.lower()
+
+    return white_space_fix(remove_articles(remove_punc(lower(s))))
 
 
 class Predictor:
@@ -19,7 +43,7 @@ class Predictor:
     def encode(self, input):
         # tokens =  tok.tokenize(input)
         encodings= self.tok.encode_plus(input, pad_to_max_length=True,truncation=True, max_length=self.max_len)
-        # pprint(f"{encodings=}")
+        logger.debug(f"{encodings=}")
         return encodings 
 
     def decode(self, output):
@@ -28,7 +52,7 @@ class Predictor:
 
     def generate(self, input_ids, attention_mask):
         ans_encoded = self.m.generate(input_ids=torch.tensor([input_ids]), attention_mask=torch.tensor([attention_mask]))
-        # print(f"{ans_encoded=}")
+        logger.debug(f"{ans_encoded=}")
         return clean("".join([self.decode(x) for x in ans_encoded]))
 
     def inference(self, question="What is the pythagorean theorem?", context="there are 8 planets in the solar system."):

@@ -5,6 +5,10 @@ from pathlib import Path
 from functools import partial
 from transformers import T5Tokenizer
 import torch 
+
+import logging 
+logger = logging.getLogger(__name__)
+
 random.seed(42)
 
 # creating a baby dataset for debugging purposes 
@@ -17,8 +21,7 @@ class T2TDataCollator:
         Returns:
             A dictionary of tensors
         """
-        # print("Collator(batch,y ) batch[0]: ", batch[0])
-
+        
         input_ids = torch.stack([x["input_ids"] for x in batch])
         lm_labels = torch.stack([x["target_ids"] for x in batch])
         lm_labels[lm_labels[:, :] == 0] = -100
@@ -68,7 +71,7 @@ def prepare_dataset(args, data_args):
 
     tds = build_dataset(train_path)
     vds = build_dataset(test_path)
-    print(f"[data.py]::prepare_dataset:finished building ds")
+    logger.debug("[data.py]::prepare_dataset:finished building ds")
 
     txt2feats = partial(convert_to_features, args=args)
     # map convert_to_features batch wise
@@ -130,12 +133,12 @@ def get_random_negative(q):
 
 
 def build_dataset(data_file):
-    print(f"[data.py::build_dataset] Hit function. Parameter:{data_file=}")
+    logger.debug(f"[data.py::build_dataset] Hit function. Parameter:{data_file=}")
 
     json_lines = []
     with open(data_file, "r") as json_file:
         x = list(json_file)
-        print(f"[data.py::build_dataset]{x=}")
+        logger.debug(f"[data.py::build_dataset]{x=}")
         for json_str in x:
             json_lines.append(json.loads(json_str))
     print("[data.py::build_dataset] finished reading raw data")
@@ -149,7 +152,7 @@ def build_dataset(data_file):
             if len(l["long_answer_candidates"]) > 2:
                 valid_questions.append(l)
 
-    print("[data.py::build_dataset] Num. examples:", len(valid_questions))
+    logger.debug("[data.py::build_dataset] Num. examples:", len(valid_questions))
 
     datapoints = {}
     datapoints["input_text"] = []
@@ -190,7 +193,7 @@ def build_dataset(data_file):
 
     if DEBUG:
         ds_size = 128
-        print(f"[data.py::build_dataset]: DEBUG={DEBUG=} --> only using {ds_size} datapoints.")
+        logger.debug(f"[data.py::build_dataset]: DEBUG={DEBUG=} --> only using {ds_size} datapoints.")
         datapoints["input_text"] = datapoints["input_text"][:128] 
         datapoints["target_text"] = datapoints["target_text"][:128]
         print("")

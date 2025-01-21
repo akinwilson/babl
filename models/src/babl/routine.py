@@ -13,13 +13,26 @@ from .metrics import test
 from .data import T2TDataCollator
 from .models import MODELS_CHOICES, MODELS
 
-    # Setup logging
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-    datefmt="%m/%d/%Y %H:%M:%S",
-    level=logging.INFO, # if train_args.local_rank in [-1, 0] else logging.WARN, # for distributed training 
-)
+import logging 
 logger = logging.getLogger(__name__)
+
+
+'''
+Using huggingface Trainer class to fit the models; I dont particularly like their Trainer class and prefer using the 
+primitives provided by pytorch and pytorch-lightning as they provide fine-grained control over all aspects; model architecture, 
+training, validation and testing regimes, exporting the models, hardware resource aquirements etc. Nethertheless, for this application demonstration, 
+we will used their implementation of the training routine. 
+
+if I get enough time, I would like to:
+TODO: 
+    transfer fitting routine over to pytorch-lightning implementation. 
+
+    implement: 
+        recurrent encoder-decoder  architecture
+        then  attention-based recurrent encoder-decoder architecture
+
+    and show how their performs in comparison to these attention based encoder-decoder transformers lags behind at the cost of an explosion in parameter count. 
+'''
 
 def routine(args, model, tokenizer):
 
@@ -44,7 +57,7 @@ def routine(args, model, tokenizer):
     "do_train": True,
     "do_eval": True,  
     "remove_unused_columns": False, # this caused me many issues with the collator. Moving over to pytorch lighnting to handling training routine
-    "num_train_epochs": 1,
+    "num_train_epochs": 5,
     }
 
     output_dir = Path(args.output_dir)
@@ -52,13 +65,13 @@ def routine(args, model, tokenizer):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"[routine.py]::{output_dir=}")
+    logger.debug(f"[routine.py]::{output_dir=}")
     with open( output_dir / "params.json", "w") as f:
         json.dump(args_dict, f)
 
     model_args, data_args, train_args = parser.parse_json_file(json_file= output_dir / "params.json")
     
-    print(f"[routine.py]::{model_args=}")
+    logger.debug(f"[routine.py]::{model_args=}")
     
     
     cache_dir = Path(args.root_dir) / model_args.cache_dir 
@@ -66,7 +79,7 @@ def routine(args, model, tokenizer):
 
     ### THS SHOULD BE PART OF PRIOR STEP OF PIPELINE 
     prepare_dataset(args, data_args)
-    print("[routine.py]::finished preparing dataset")
+    logger.debug("[routine.py]::finished preparing dataset")
     if (os.path.exists(output_dir) and train_args.do_train and not train_args.overwrite_output_dir ):
         raise ValueError(f"Output directory ({output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome.")
     logger.warning(f"Process rank: {train_args.local_rank}, device: {train_args.device}, n_gpu: {train_args.n_gpu}, distributed training: {bool(train_args.local_rank != -1)}, 16-bits training: {train_args.fp16}")
@@ -76,12 +89,9 @@ def routine(args, model, tokenizer):
     set_seed(train_args.seed)
 
     # Load pretrained model and tokenizer
-    tokenizer = tok.from_pretrained(model_args.model_name_or_path,cache_dir=cache_dir)
-    model = model.from_pretrained(
-        model_args.model_name_or_path,
-        cache_dir=cache_dir,
-    )
-    print(f"[routine.py]::{tokenizer=}")
+    tokenizer = tokenizer.from_pretrained(model_args.model_name_or_path,cache_dir=cache_dir)
+    model = model.from_pretrained(model_args.model_name_or_path,cache_dir=cache_dir)
+    logger.debug(f"[routine.py]::{tokenizer=}")
     
     
     # Get datasets
@@ -107,22 +117,22 @@ def routine(args, model, tokenizer):
             if os.path.isdir(model_args.model_name_or_path)
             else None # load from fs if avialable else download
         )
-        print(f"[routine.py]::loss:{loss}")
+        logger.info(f"loss:{loss}")
         trainer.save_model()
         # print("train.__dict__()", trainer.__dict__)
         tokenizer.save_pretrained(output_dir)
 
     # Evaluation
     results = {}
-    if train_args.do_eval and train_args.local_rank in [-1, 0]:
-        logger.info("Validation".center("="*100))
+    if train_args.do_eval and int(train_args.local_rank) in [-1, 0]:
+        logger.info("Validation".center(100,"="))
 
         eval_output = trainer.evaluate()
 
         output_eval_file = output_dir / "eval_results.txt"
 
         with open(output_eval_file, "w") as f:
-            logger.info("Rsults".center(100,'-'))
+            logger.info("Results".center(100,'-'))
             for key in sorted(eval_output.keys()):
                 logger.info(f" {key} = {str(eval_output[key])}")
                 f.write(f"{key} = {str(eval_output[key])}\n")

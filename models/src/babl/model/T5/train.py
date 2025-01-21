@@ -10,6 +10,7 @@ from .data import prepare_dataset
 from argparse import ArgumentParser 
 from .config import ModelArguments, DataArguments
 from .data import T2TDataCollator
+from .eval import test
 
 logger = logging.getLogger(__name__)
 
@@ -135,10 +136,6 @@ def main(args):
         results.update(eval_output)
 
     return results
-
-
-
-"""Start training!"""
 
 
 if __name__ == "__main__":
