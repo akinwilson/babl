@@ -119,7 +119,6 @@ def routine(args, model, tokenizer):
         )
         logger.info(f"loss:{loss}")
         trainer.save_model()
-        # print("train.__dict__()", trainer.__dict__)
         tokenizer.save_pretrained(output_dir)
 
     # Evaluation
