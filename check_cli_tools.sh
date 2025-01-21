@@ -18,7 +18,7 @@ project_title=$(cat <<"EOF"
 EOF
 )
 
-echo "${YELLOW}${project_title}${RESET}\n\n"
+echo "${YELLOW}${project_title}${RESET}\n"
 
 
 # checking if verion returned is null with -z 
@@ -36,6 +36,6 @@ fi
 
 
 
-echo "\n\nYou have all the required CLI tools for  ${LIGHTPURPLE}local deployment${RESET}.\n\nReady to begin."
+echo "\nYou have all the required CLI tools for  ${LIGHTPURPLE}local deployment${RESET}.\n\nReady to begin.\n\n"
 
 
