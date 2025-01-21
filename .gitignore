@@ -5,6 +5,7 @@
 /notebooks
 Pipfile
 /lightning_logs
+*.log
 *.pt
 args.json
 **__pycache__**
