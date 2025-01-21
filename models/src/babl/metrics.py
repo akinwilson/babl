@@ -56,6 +56,7 @@ def test(args, model, tokenizer):
     
     model_path = Path(args.output_dir)
     
+    # again assuming its always checkpoint-1 we wish to load
     checkpoint_path =  model_path /  "checkpoint-1" # ""
     logger.debug(f"[metrics.py::test]: {checkpoint_path=}")
     # for checkpoint in listdir(checkpoints):
