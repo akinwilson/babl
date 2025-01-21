@@ -49,6 +49,13 @@ if __name__ == "__main__":
  
 
     tm = MODELS[model_name]
+    # At the moment, the first variant in the list of models is chosen
+    # 3 models, there is only one variant, but for t5, there are 5; 
+    # 't5-small', 't5-base', 't5-large','t5-3b','t5-11b'
+    # A dirt fix would be changing the order of the list, such that whatever
+    # variant you want train of t5 is first in the list.
+    # best change this in the ./models.py file 
+    
     full_model_name = MODELS_CHOICES[model_name][0]
     args.model_name_or_path=full_model_name
 
