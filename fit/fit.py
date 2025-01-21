@@ -7,6 +7,17 @@ import warnings
 import os 
 warnings.filterwarnings("ignore")
 
+import logging 
+# Setup logging
+logging.basicConfig(
+    filename=  Path(__file__).parent / 'fit.log', encoding='utf-8',
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO, # if train_args.local_rank in [-1, 0] else logging.WARN, # for distributed training 
+)
+
+logger = logging.getLogger(__name__)
+
 if __name__ == "__main__":
 
     parser = ArgumentParser()
@@ -38,16 +49,23 @@ if __name__ == "__main__":
     full_model_name = MODELS_CHOICES[model_name][0]
     args.model_name_or_path=full_model_name
 
-    print(f"[fit.py]::__main__{full_model_name=}")
-    print(f"[fit.py]::__main__{args.model_name_or_path=}")
+    logger.debug(f"[fit.py]::__main__{full_model_name=}")
+    logger.debug(f"[fit.py]::__main__{args.model_name_or_path=}")
+    logger.warning('Watch out!')
 
     tok = tm['tok'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
     model = tm['model'].from_pretrained(args.model_name_or_path, cache_dir=cache_dir)
     
-    routine(args, tok, model)
-    test(args, tok, model)
+    routine(args, model=model, tokenizer=tok)
+    test(args, model=model, tokenizer=tok)
 
-    print("FINISHED".center("=", 100))
+    logger.info("FINISHED".center(100, "="))
+
+
+    # see : https://en.wikipedia.org/wiki/ANSI_escape_code
+    grey='\033[1;90m'
+# reset 
+    reset='\033[0m'
     s = '''
                             @@@@@@@@@@@@@@@@@@@@@@@@@                           
                       ,@@@@@@@@@@@            #@@@@@@@@@@@                      
@@ -77,4 +95,4 @@ if __name__ == "__main__":
                        @@@@@@@@@@@            .@@@@@@@@@@                       
                             .@@@@@@@@@@@@@@@@@@@@@@@                            
         '''
-    print(s)
+    print( grey + s + reset)
