@@ -13,8 +13,11 @@ logging.basicConfig(
     filename=  Path(__file__).parent / 'fit.log', encoding='utf-8',
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
-    level=logging.INFO, # if train_args.local_rank in [-1, 0] else logging.WARN, # for distributed training 
+    level=logging.DEBUG,
+    # gging.INFO, # if train_args.local_rank in [-1, 0] else logging.WARN, # for distributed training 
 )
+# add : stream=sys.stdout
+# to  this to config above to also stream logs to standard output 
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +65,7 @@ if __name__ == "__main__":
     logger.info("FINISHED".center(100, "="))
 
 
-    # see : https://en.wikipedia.org/wiki/ANSI_escape_code
+    # see : 
     grey='\033[1;90m'
 # reset 
     reset='\033[0m'
