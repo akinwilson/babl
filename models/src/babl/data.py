@@ -57,21 +57,21 @@ class T2TDataCollator:
             [x["target_attention_mask"] for x in batch]
         )
         ####### NOTICE WE HAVE LABELS instead of TARGET_IDS the model expects these as inputs
-        if os.environ["MODEL_NAME"] == "bert":
-            return {
-                "input_ids": input_ids,
-                "attention_mask": attention_mask,
-                "labels": lm_labels,
-                "encoder_attention_mask": decoder_attention_mask,
-            }
+        # if os.environ["MODEL_NAME"] == "bert":
+        #     return {
+        #         "input_ids": input_ids,
+        #         "attention_mask": attention_mask,
+        #         "labels": lm_labels,
+        #         "encoder_attention_mask": decoder_attention_mask,
+        #     }
 
-        if os.environ["MODEL_NAME"] == "t5":
-            return {
-                "input_ids": input_ids,
-                "attention_mask": attention_mask,
-                "labels": lm_labels,
-                "decoder_attention_mask": decoder_attention_mask,
-            }
+        # if os.environ["MODEL_NAME"] == "t5":
+        return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": lm_labels,
+            "decoder_attention_mask": decoder_attention_mask,
+        }
 
 
 def convert_to_features(batch, args, tokenizer):
