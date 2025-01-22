@@ -2,7 +2,6 @@
 /inputs
 /cache
 /outputs
-/notebooks
 Pipfile
 /lightning_logs
 *.log
