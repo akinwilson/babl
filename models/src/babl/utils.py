@@ -5,6 +5,46 @@ import re
 
 logger = logging.getLogger(__name__)
 
+
+from pytorch_lightning.callbacks import (
+    EarlyStopping,
+    ModelCheckpoint,
+    LearningRateMonitor,
+)
+
+
+class CallbackCollection:
+    def __init__(self, data_path, args):
+
+        self.data_path = data_path
+        self.args = args
+
+    def __call__(self):
+        lr_monitor = LearningRateMonitor(logging_interval="epoch")
+
+        early_stopping = EarlyStopping(
+            mode="min", monitor="val_loss", patience=self.args.es_patience
+        )
+        checkpoint_callback = ModelCheckpoint(
+            monitor="val_loss",
+            dirpath=self.args.model_dir,
+            save_top_k=2,
+            save_last=True,
+            mode="min",
+            filename="{epoch}-{val_loss:.2f}-{val_acc:.2f}-{val_ttr:.2f}-{val_ftr:.2f}",
+        )
+
+        callbacks = {
+            "checkpoint": checkpoint_callback,
+            "lr": lr_monitor,
+            "es": early_stopping,
+        }
+        # callbacks = [checkpoint_callback, lr_monitor, early_stopping]
+        return callbacks
+
+
+
+
 def clean(x):
     return x.replace("<pad>", "").replace("</s>", "").strip().lower()
 

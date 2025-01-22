@@ -178,9 +178,9 @@ class TextDataset(Dataset):
 
 
 class TextDataModule(pl.LightningDataModule):
-    def __init__(self, data_path, tokenizer):
+    def __init__(self, data_path, tokenizer, batch_size=8):
         super().__init__()
-
+        self.batch_size = batch_size
         self.train_path = Path(data_path) / "50k.jsonl"
         self.val_path = Path(data_path) / "10k.jsonl"
         # NOTICE, we  re-use the validatio dataset
@@ -192,7 +192,7 @@ class TextDataModule(pl.LightningDataModule):
         ds_train = TextDataset(self.train_path, self.tokenizer)
         return DataLoader(
             ds_train,
-            batch_size=32,
+            batch_size=self.batch_size,
             shuffle=True,
             num_workers=10,
             drop_last=True,
@@ -204,7 +204,7 @@ class TextDataModule(pl.LightningDataModule):
         ds_val = TextDataset(self.val_path, self.tokenizer)
         return DataLoader(
             ds_val,
-            batch_size=32,
+            batch_size=self.batch_size,
             shuffle=True,
             num_workers=10,
             drop_last=True,
@@ -217,7 +217,7 @@ class TextDataModule(pl.LightningDataModule):
         ds_test = TextDataset(self.test_path, self.tokenizer)
         return DataLoader(
             ds_test,
-            batch_size=32,
+            batch_size=self.batch_size,
             shuffle=True,
             drop_last=True,
             num_workers=10,
