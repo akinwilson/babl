@@ -26,8 +26,8 @@ random.seed(42)
 
 class TextDataset(Dataset):
 
-    def __init__(self, dath_path, tokenizer, plain_text=False):
-
+    def __init__(self, dath_path, tokenizer, plain_text=False, dev_run=True):
+        self.dev_run = dev_run
         # tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)  # "t5-small")
         ####################################################################################
         @dataclass
@@ -92,8 +92,8 @@ class TextDataset(Dataset):
 
         self.ds["input_text"] = []
         self.ds["target_text"] = []
+  
         for i, q in enumerate(examples):
-
             # fitting dataset; positive and negative fitting examples
             if random.randint(0, 1) == 1:
                 # Construct positive example
@@ -107,6 +107,11 @@ class TextDataset(Dataset):
                     f"question: {q['question_text']}  context: {self.get_random_negative(q)} </s>"[:self.data_args.input_max_len]
                 )
                 self.ds["target_text"].append("None </s>"[:self.data_args.output_max_len])
+
+        if self.dev_run:
+            self.ds["target_text"] = self.ds["target_text"][:128]
+            self.ds["input_text"] = self.ds["input_text"][:128] 
+
         assert len(self.ds["target_text"]) == len(
             self.ds["input_text"]
         ), "incorrect data distribution"
@@ -178,8 +183,9 @@ class TextDataset(Dataset):
 
 
 class TextDataModule(pl.LightningDataModule):
-    def __init__(self, data_path, tokenizer, batch_size=8):
+    def __init__(self, data_path, tokenizer, batch_size=8, dev_run=True):
         super().__init__()
+        self.dev_run = dev_run
         self.batch_size = batch_size
         self.train_path = Path(data_path) / "50k.jsonl"
         self.val_path = Path(data_path) / "10k.jsonl"
@@ -189,7 +195,7 @@ class TextDataModule(pl.LightningDataModule):
         self.pin_memory = False  # True if torch.cuda.is_available() else False
 
     def train_dataloader(self):
-        ds_train = TextDataset(self.train_path, self.tokenizer)
+        ds_train = TextDataset(self.train_path, self.tokenizer, self.dev_run)
         return DataLoader(
             ds_train,
             batch_size=self.batch_size,
@@ -201,7 +207,7 @@ class TextDataModule(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-        ds_val = TextDataset(self.val_path, self.tokenizer)
+        ds_val = TextDataset(self.val_path, self.tokenizer, self.dev_run)
         return DataLoader(
             ds_val,
             batch_size=self.batch_size,
@@ -214,7 +220,7 @@ class TextDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
 
-        ds_test = TextDataset(self.test_path, self.tokenizer)
+        ds_test = TextDataset(self.test_path, self.tokenizer, self.dev_run)
         return DataLoader(
             ds_test,
             batch_size=self.batch_size,
