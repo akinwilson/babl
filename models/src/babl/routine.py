@@ -58,6 +58,8 @@ def routine(args, model, tokenizer):
         "tpu_num_cores": 8,
         "do_train": True,
         "do_eval": True,
+        # "_n_gpu": 4,
+        # "place_model_on_device": True,
         "remove_unused_columns": False,  # this caused me many issues with the collator. Moving over to pytorch lighnting to handling training routine
         "num_train_epochs": 5,
     }
