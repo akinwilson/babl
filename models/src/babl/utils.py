@@ -31,7 +31,7 @@ class CallbackCollection:
             save_top_k=2,
             save_last=True,
             mode="min",
-            filename="{epoch}-{val_loss:.2f}-{val_acc:.2f}-{val_ttr:.2f}-{val_ftr:.2f}",
+            filename="{epoch}-{val_loss:.2f}-{val_EM:.2f}-{val_F1:.2f}",
         )
 
         callbacks = {
