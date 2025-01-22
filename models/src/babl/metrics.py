@@ -1,18 +1,20 @@
 # F1: https://en.wikipedia.org/wiki/F-score
 ## SQuAD evaluation script. Modifed slightly for this notebook
-from  .model.T5.config import ModelArguments
+from .model.T5.config import ModelArguments
 from transformers import HfArgumentParser
 from .utils import clean
 from pathlib import Path
+
 # local data igestion path
 from collections import Counter
 from .utils import normalize_answer
 import torch
-from transformers import  set_seed
+from transformers import set_seed
 from tqdm.auto import tqdm
 
 
-import logging 
+import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,23 +54,26 @@ def evaluate(gold_answers, predictions):
     return {"exact_match": exact_match, "f1": f1}
 
 
-def test(args, model, tokenizer):    
-    
+def test(args, model, tokenizer):
+
     model_path = Path(args.output_dir)
-    
+
     # again assuming its always checkpoint-1 we wish to load
-    checkpoint_path =  model_path /  "checkpoint-1" # ""
+    checkpoint_path = model_path / "checkpoint-1"  # ""
     logger.debug(f"[metrics.py::test]: {checkpoint_path=}")
     # for checkpoint in listdir(checkpoints):
     # model = T5ForConditionalGeneration.from_pretrained(model_path + checkpoint).to("cuda")
     try:
         model = model.from_pretrained(checkpoint_path).to("cuda")
     except:
-        logger.debug(f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint_path} path didnt work")
-        model = model.from_pretrained(pretrained_model_name_or_path=args.model_name_or_path).to("cuda")
+        logger.debug(
+            f"DIDNT LOAD LOCAL TRAINED MODEL: checkpoint:{checkpoint_path} path didnt work"
+        )
+        model = model.from_pretrained(
+            pretrained_model_name_or_path=args.model_name_or_path
+        ).to("cuda")
 
-    tokenizer = tokenizer.from_pretrained(args.model_name_or_path)#  "t5-small")
-
+    # tokenizer = tokenizer.from_pretrained(args.model_name_or_path)#  "t5-small")
 
     val_path = Path(args.input_dir) / "valid_data.pt"
     val_ds = torch.load(val_path)
@@ -90,8 +95,8 @@ def test(args, model, tokenizer):
     for ref, pred in zip(val_ds, answers):
         predictions.append(clean(pred))
         references.append(clean(tokenizer.decode(ref["target_ids"])))
-    from pprint import pprint 
+    from pprint import pprint
+
     logger.debug(f"[{__file__}::test ] References:")
     logger.debug(references)
     print(checkpoint_path, evaluate(references, predictions))
-
