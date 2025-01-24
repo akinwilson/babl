@@ -29,16 +29,13 @@ there will also be a webserver serving an application allowing end users to test
 http://localhost:7000
 ```
 
-
-
 ## Installation 
 
-
-Create a virtual environment and install the `python` package requirements. 
+Create a virtual environment with your preferred environment manage and install the `python` package requirements. 
 ```
 pip install -r requirements.txt
 ```
-To fintstall the python library containing all the large language models, `babl`, run 
+To intstall the python library containing all the large language models, `babl`, run 
 ```
 pip install -e ./models
 ```
@@ -79,6 +76,7 @@ ALongside training and delopying the models, this library implements an experime
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
 
 ## Todo 20 Jan 2025
+- [ ] factor metric caclculations into own mondule. 
 - [ ] Test fiting for every model. You can now fit each model with a single command ; `python fit.py --model-name-or-path {t5,llama,bloom,bert}`
 - [ ] Containerised the serving container and test along with fine-tuning job and application webserver the end to end application 
 - [ ] Developed frontend in chatapp application. Can used [this project](https://github.com/meghsohor/chat-app-vanilla-js/tree/master) as a guide

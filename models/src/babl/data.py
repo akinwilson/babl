@@ -2,13 +2,14 @@ import json
 import random
 from nlp import Dataset
 from pathlib import Path
-from functools import partial
+# from functools import partial
 from torch.utils.data import DataLoader
 from dataclasses import dataclass
 import pytorch_lightning as pl 
+# from .config import Data as DataArgs 
 
-from .models import MODELS_CHOICES, MODELS
-import os
+# from .models import MODELS_CHOICES, MODELS
+# import os
 
 # from transformers import T5Tokenizer
 
@@ -26,22 +27,24 @@ random.seed(42)
 
 class TextDataset(Dataset):
 
-    def __init__(self, dath_path, tokenizer, plain_text=False, dev_run=True):
-        self.dev_run = dev_run
+    def __init__(self, dath_path, tokenizer, data_args, plain_text=False, mini_dataset=True):
+        
         # tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)  # "t5-small")
         ####################################################################################
-        @dataclass
-        class DataArgs:
-            input_max_len: int = 64
-            output_max_len: int = 64
+        # @dataclass
+        # class DataArgs:
+        #     input_max_len: int = 64
+        #     output_max_len: int = 64
 
         ####################################################################################
         # super().__init__()
-        self.data_args = DataArgs()
 
+        self.args = data_args
+        self.mini_dataset = mini_dataset
         self.data_path = Path(dath_path)
         self.tokenizer = tokenizer
         self.plain_text = plain_text
+        
         self.ds = {}
         if plain_text:
             self.construct_ds(self.extract_valid_pairs(self.read()))
@@ -98,18 +101,18 @@ class TextDataset(Dataset):
             if random.randint(0, 1) == 1:
                 # Construct positive example
                 self.ds["input_text"].append(
-                    f"question: {q['question_text']}  context: {self.get_long_answer(q)} </s>"[:self.data_args.input_max_len]
+                    f"question: {q['question_text']}  context: {self.get_long_answer(q)} </s>"[:self.args.input_max_len]
                 )
                 self.ds["target_text"].append(self.get_short_answer(q))
             else:
                 # Construct negative example
                 self.ds["input_text"].append(
-                    f"question: {q['question_text']}  context: {self.get_random_negative(q)} </s>"[:self.data_args.input_max_len]
+                    f"question: {q['question_text']}  context: {self.get_random_negative(q)} </s>"[:self.args.input_max_len]
                 )
-                self.ds["target_text"].append("None </s>"[:self.data_args.output_max_len])
+                self.ds["target_text"].append("None </s>"[:self.args.output_max_len])
 
-        if self.dev_run:
-            print(f"DEV RUN?: {self.dev_run}. Using 128 datapoints for training")
+        if self.mini_dataset:
+            print(f"MINI DATASET RUN?: {self.mini_dataset}. Using 128 datapoints for training")
             self.ds["target_text"] = self.ds["target_text"][:128]
             self.ds["input_text"] = self.ds["input_text"][:128] 
 
@@ -123,13 +126,13 @@ class TextDataset(Dataset):
             batch_text_or_text_pairs=batch["input_text"],
             truncation=True,
             pad_to_max_length=True,
-            max_length=self.data_args.input_max_len,
+            max_length=self.args.input_max_len,
         )
         target_encodings = self.tokenizer.batch_encode_plus(
             batch_text_or_text_pairs=batch["target_text"],
             truncation=True,
             pad_to_max_length=True,
-            max_length=self.data_args.output_max_len,
+            max_length=self.args.output_max_len,
         )
         # print("input_encodings", input_encodings.keys())
         # print("target_encodings", target_encodings.keys())
@@ -184,19 +187,20 @@ class TextDataset(Dataset):
 
 
 class TextDataModule(pl.LightningDataModule):
-    def __init__(self, data_path, tokenizer, batch_size=8, dev_run=True):
+    def __init__(self, data_args, tokenizer, batch_size=8, mini_dataset=True):
         super().__init__()
-        self.dev_run = dev_run
+        self.mini_dataset = mini_dataset
         self.batch_size = batch_size
-        self.train_path = Path(data_path) / "50k.jsonl"
-        self.val_path = Path(data_path) / "10k.jsonl"
+        self.args = data_args
+        self.train_path = self.args.data_path_root / "50k.jsonl"
+        self.val_path = self.args.data_path_root / "10k.jsonl"
         # NOTICE, we  re-use the validatio dataset
-        self.test_path = Path(data_path) / "10k.jsonl"
+        self.test_path = self.args.data_path_root / "10k.jsonl"
         self.tokenizer = tokenizer
         self.pin_memory = False  # True if torch.cuda.is_available() else False
 
     def train_dataloader(self):
-        ds_train = TextDataset(self.train_path, self.tokenizer, dev_run=self.dev_run)
+        ds_train = TextDataset(self.train_path, self.tokenizer,data_args=self.args, mini_dataset=self.mini_dataset)
         return DataLoader(
             ds_train,
             batch_size=self.batch_size,
@@ -208,7 +212,7 @@ class TextDataModule(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-        ds_val = TextDataset(self.val_path, self.tokenizer, dev_run=self.dev_run)
+        ds_val = TextDataset(self.val_path, self.tokenizer, data_args=self.args, mini_dataset=self.mini_dataset)
         return DataLoader(
             ds_val,
             batch_size=self.batch_size,
@@ -221,7 +225,7 @@ class TextDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
 
-        ds_test = TextDataset(self.test_path, self.tokenizer, dev_run=self.dev_run)
+        ds_test = TextDataset(self.test_path, self.tokenizer, data_args=self.args, mini_dataset=self.mini_dataset)
         return DataLoader(
             ds_test,
             batch_size=self.batch_size,
