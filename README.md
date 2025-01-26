@@ -76,6 +76,25 @@ ALongside training and delopying the models, this library implements an experime
 - Where we concatenate the question **x** with the context **c** in the latter dataset. 
 
 ## Todo 20 Jan 2025
+
+**LAST STATE** T5 training. with `export MODEL_NAME=t5 && pthon fit.py`. Need to containerised. Want ot be able to provide MODEL_NAME as env var, and the provide command `python fit.py -h` into the fitting container to show model-specific as well as fitting and data-related  parameter options. need to write bash script for entrypoing like 
+
+a `start.sh` like  
+```bash 
+#!/bin/bash 
+exec "@"
+
+as ENTRYPOINT in dockefile such that  the fitting can be run it like (executed from the root of this directory) 
+```
+cd fit && docker build . -f Dockerfile.fit fit:latest && cd ..
+docker run --name fit -v $(pwd)/inputs:/usr/app/src/inputs -e MODEL_NAME=t5  fit:latest  python fit.py -h  
+```
+
+
+which should then print parameter 
+
+ Was just agregrating all the parameters in `config.py` and successfully used there was an [issue](https://github.com/mivade/argparse_dataclass/issues/65) surrounding printing help from the cli. Also, you were figuring out [how to merge](https://stackoverflow.com/questions/79380660/how-to-pythonically-merging-python-data-classes-with-unique-attribute-names) dataclasses in prepartion for using with [dataclass_argparse](https://pypi.org/project/argparse-dataclass/). Dont forget, you wanted to also figured out how to split the parsed data back into instances of the dataclasses whcich they belong to. 
+
 - [ ] factor metric caclculations into own mondule. 
 - [ ] Test fiting for every model. You can now fit each model with a single command ; `python fit.py --model-name-or-path {t5,llama,bloom,bert}`
 - [ ] Containerised the serving container and test along with fine-tuning job and application webserver the end to end application 
