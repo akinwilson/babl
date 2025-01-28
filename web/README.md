@@ -19,5 +19,5 @@ python manage.py runserver 127.0.0.1:8080
 
 
 TO DO 21 Jan 2025:
-- [ ] Frontend development: checkout [this video](https://www.youtube.com/watch?v=_sxoqRIbW0c) and walk through it step by step integrating it into the frontend part of this application 
+- [ ] Frontend development: checkout [this video](https://www.youtube.com/watch?v=_sxoqRIbW0c) and walk through it step by step integrating it into the frontend part of this application. But instead of using their style sheets, use this [latex style sheet](https://latex.vercel.app/) 
 
