@@ -1,0 +1,6 @@
+AWS_ACCOUNT=project
+AWS_PROFILE=dev
+AWS_REGION=eu-west-2
+AWS_TF_BUCKET=project-iac-svc
+STAGE=dev 
+
