@@ -1,0 +1,13 @@
+FROM python:3.12
+LABEL maintainer="Akinola Antony Wilson <akinolawilson@gmail.com>"
+
+# setting working directory 
+WORKDIR /usr/src/app
+
+
+# copy over application code 
+COPY ./babl ./ 
+
+
+
+
