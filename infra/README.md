@@ -1,4 +1,4 @@
-## Infrastructure for remote fitting jobs 
+## Remote deployment 
 
 ## Overview 
 
@@ -42,30 +42,48 @@ To start, run the followng script to ensure you have all the required CLI tools:
 ./check_cli_tools.sh
 ```
 Next, review the `aws_env_vars` file and tailor it to your AWS account. 
-
-Once, happy with the tailored file, to export its content as environment variables run 
+```
+AWS_ACCOUNT=project             # the aws account name 
+AWS_PROFILE=developer           # the profile name
+AWS_REGION=eu-west-2            # aws region 
+AWS_TF_BUCKET=project-iac-svc   # terraform state store bucket name 
+AWS_TF_STAGE=dev                # state {dev|prod}
+AWS_EC2_TYPE=g6.12xlarge        # type of ec2 instanced used to fit, serve and deploy the model
+``
+Once, happy with the tailored `aws_env_vars` file, to export its content as environment variables run 
 ```
 export $(cat aws_env_args | xargs)
 ```
-**Note** you are free to call your [terraform state version control](https://developer.hashicorp.com/terraform/language/state) bucket anything you would like with in the constraints AWS places on bucket names, but obviously a semantically logical name is perferable for a seperation of concerns. 
 
-We want to create a `.tfvars` file in order to make use of these inside of our terraform files. From the command line, run:
+We want to create a `.tfvars` file in order to make use of it inside of our terraform initialisation. To do so from the command line, run:
 
 ```
 cat <<EOF > $AWS_ACCOUNT.tfvars
 name="${AWS_ACCOUNT}"
 region="${AWS_REGION}"
 environment="${STAGE}"
+instace_type="${AWS_EC2_TPYE}"
 EOF
 ```
-This will create the `AWS_ACCONT.tfvars` file which `terraform` will as an input. 
+This will create the `$AWS_ACCONT.tfvars` file which `terraform` will as an input. 
 
 
-Next, provision the state-store bucket with:
-```
+Next, we need to provision the state-store bucket for terraform with:
+```bash
 ./utils/create-s3-tf-backend-bucket.sh 
 ```
-
+and then initialise `terraform` with
+```bash
+terraform init
+```
+generate a plan of the to-be-provisioned resources via 
+```
+terraform plan
+```
+and then apply those provisions with
+```
+terraform apply
+```
 
 
 
