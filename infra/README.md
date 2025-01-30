@@ -32,7 +32,7 @@ EC2 instances with GPUs are preferable as reduce the time need to be provisionin
 | g6.48xlarge | 8 | 192 | 192 | 768 | 8x940 | 100 | 60 | $13.35 | 
 
 
-**Note** the hourly cost. With that in mind, you may choose to run smaller fitting jobs first locally, and using the execution time results to extrapolate and estimate roughly how long it would take for you actually fitting job(s) to completely, therewith gauging how much your endavour will cost.
+**Note** the hourly cost. With that in mind, you may choose to run smaller fitting jobs first locally, and using the execution time results to extrapolate and estimate roughly how long it would take for you actually fitting job(s) to complete, therewith gauging how much your endavour will cost.
 
 
 ## Usage 
