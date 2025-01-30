@@ -10,6 +10,11 @@ variable "vpc_id" {
   description = "The vpc to launch the EC2 instance into"
 }
 
+variable "instance_type" {
+  description = "The EC2 instance type"
+  default = "g6.xlarge"
+}
+
 variable "availability_zones" {
   description = "a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both private_subnets and public_subnets have to be defined as well"
   default     = ["eu-west-2a", "eu-west-2b"]
