@@ -12,7 +12,10 @@ Causally and masked pretrained deep learning networks have been applied to a var
 
 
 ## Usage
-To prop up all services; the fine-tuning of the models, model serving and webserver application, run
+
+### Local deployment 
+
+To prop up all services; the fine-tuning of the models, model serving and webserver application, `cd` into the `app/` directory and run
 
 ```
 docker-compose -f docker-compose.yaml
@@ -28,10 +31,28 @@ there will also be a webserver serving an application allowing end users to test
 ```
 http://localhost:7000
 ```
+### Remote deployment
+_in wording progress_
+For a remote deployment to the AWS infrastructure, `cd` in the `infra/` directory and create a backend state store bucket for terraform 
+```bash
+./utils/create-s3-tf-backend-bucket.sh
+```
+and initialize terraform
+```bash
+terraform init
+```
+then, let terraform process a plan for the infrastructure to be deployed and review the plan 
+```bash
+terraform plan 
+```
+and finally, apply the planned provisions 
+```bash
+terraform apply
+```
 
-## Installation 
+## Application installation 
 
-Create a virtual environment with your preferred environment manage and install the `python` package requirements. 
+From within the `app/` directory, create a virtual environment with your preferred environment manage and install the `python` package requirements. 
 ```
 pip install -r requirements.txt
 ```
