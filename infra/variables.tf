@@ -1,6 +1,6 @@
 variable "name" {
   description = "The name of the stack"
-  default     = "web"
+  default     = "babl"
 }
 
 variable "environment" {
@@ -23,11 +23,6 @@ variable "cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "private_subnets" {
-  description = "a list of CIDRs for private subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
-  default     = ["10.0.0.0/20", "10.0.32.0/20"]
-}
-
 variable "public_subnets" {
   description = "a list of CIDRs for public subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
   default     = ["10.0.16.0/20", "10.0.48.0/20"]
@@ -37,26 +32,6 @@ variable "public_subnets" {
 variable "key_path" {
   description = "path to pulic key for jumping between ec2s in public and private network"
   default     = "~/.ssh/aws-dev-key.pub"
-}
-
-
-variable "domain_name" {
-
-  description = "Domain name to be used"
-  default     = "cbay.io"
-}
-
-variable "db_password" {
-  description = "Database root password"
-  default     = "rootrootroot"
-}
-variable "db_user" {
-  description = "Database root user"
-  default     = "root"
-}
-variable "db_name" {
-  description = "Database name"
-  default     = "django"
 }
 
 variable "target_group_port" {
