@@ -42,26 +42,28 @@ To start, run the followng script to ensure you have all the required CLI tools:
 ./check_cli_tools.sh
 ```
 Next, review the `aws_env_vars` file and tailor it to your AWS account. 
-```
+```plaintext
 AWS_ACCOUNT=project             # the aws account name 
 AWS_PROFILE=developer           # the profile name
 AWS_REGION=eu-west-2            # aws region 
 AWS_TF_BUCKET=project-iac-svc   # terraform state store bucket name 
 AWS_TF_STAGE=dev                # state {dev|prod}
 AWS_EC2_TYPE=g6.12xlarge        # type of ec2 instanced used to fit, serve and deploy the model
-``
-Once, happy with the tailored `aws_env_vars` file, to export its content as environment variables run 
 ```
+Once, happy with the tailored `aws_env_vars` file, to export its content as environment variables run 
+
+
+```bash
 export $(cat aws_env_args | xargs)
 ```
 
 We want to create a `.tfvars` file in order to make use of it inside of our terraform initialisation. To do so from the command line, run:
 
-```
+```bash
 cat <<EOF > $AWS_ACCOUNT.tfvars
 name="${AWS_ACCOUNT}"
 region="${AWS_REGION}"
-environment="${STAGE}"
+environment="${AWS_TF_STAGE}"
 instace_type="${AWS_EC2_TPYE}"
 EOF
 ```
