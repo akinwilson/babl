@@ -15,6 +15,24 @@ With using the GPU(s), you may see a substantial speed up in fitting time of you
 
 This repository is for those with locally resource-contraint environments, whether it be RAM, VRAM or CPU and/or GPU [clock rate](https://en.wikipedia.org/wiki/Clock_rate), and wish to execute their fitting routines in an environemnt with access to more desirable resources without a concern for expenditure associated to renting node(s).  
 
+## Instance types 
+EC2 instances with GPUs are preferable as reduce the time need to be provisioning the infrastructure. Here is a narrowed down list of options to choose from 
+
+| Instance Size |GPU|GPU Memory (GB)|vCPUs |Memory (GiB) |Storage (GB) | Network Bandwidth (Gbps) | EBS Bandwidth (Gbps) | On Demand Price/hr* |
+| ----------- | - | -- | -- | --- | ----- | -------- | ------- | ------ |
+| g6.xlarge   | 1 | 24 | 4  | 16  | 1x250 | Up to 10 | Up to 5 | $0.805 | 
+| g6.2xlarge  | 1 | 24 | 8  | 32  | 1x450 | Up to 10 | Up to 5 | $0.978 |
+| g6.4xlarge  | 1 | 24 | 16 | 64  | 1x600 | Up to 25 | 8       | $1.323 | 
+| g6.8xlarge  | 1 | 24 | 32 | 128 | 2x450 | 25       | 16      | $2.014 |
+| g6.16xlarge | 1 | 24 | 64 | 256 | 2x940 | 25       | 20      | $3.397 | 
+| g6.12xlarge | 4 | 96  | 48  | 192 | 4x940 | 40  | 20 | $4.602 |
+| gr6.4xlarge | 1 | 24 | 16 | 128 | 1x600 | Up to 25 | 8  | $1.539 |
+| gr6.8xlarge | 1 | 24 | 32 | 256 | 2x450 | 25       | 16 | $2.446 | 
+| g6.24xlarge | 4 | 96  | 96  | 384 | 4x940 | 50  | 30 | $6.675 | 
+| g6.48xlarge | 8 | 192 | 192 | 768 | 8x940 | 100 | 60 | $13.35 | 
+
+
+**Note** the hourly cost. With that in mind, you may choose to run smaller fitting jobs first locally, and using the execution time results to extrapolate and estimate roughly how long it would take for you actually fitting job(s) to completely, therewith gauging how much your endavour will cost.
 
 
 ## Usage 
