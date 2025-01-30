@@ -65,6 +65,7 @@ name="${AWS_ACCOUNT}"
 region="${AWS_REGION}"
 environment="${AWS_TF_STAGE}"
 instace_type="${AWS_EC2_TPYE}"
+tf_bucket="${AWS_TF_BUCKET}"
 EOF
 ```
 This will create the `$AWS_ACCONT.tfvars` file which `terraform` will as an input. 
