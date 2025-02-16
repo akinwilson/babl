@@ -68,7 +68,7 @@ class Bert:
 class Data:
     input_max_len: int = field(default=64, metadata={'help': "maximum length to truncate or padded upto for input sequence"})
     output_max_len: int = field(default=64, metadata={'help': "maximum length to truncate or padded upto for output sequence"})
-    data_path_root : Path = field(default=Path(__file__).parent / "inputs", metadata={'help': "directory path containing fitting data. Should contain files: `10k.jsonl` and `50k.jsonl`"} )
+    data_path_root : Path = field(default=Path("/usr/src/app/inputs"), metadata={'help': "directory path containing fitting data. Should contain files: `10k.jsonl` and `50k.jsonl`"} )
 ####################################################################################
 
 
