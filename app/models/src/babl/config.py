@@ -76,7 +76,7 @@ class Data:
 @dataclass
 class Fitting:
     es_patience: int = 2
-    model_dir : Path = Path("/usr/src/app") /  MODELS_CHOICES[os.environ['MODEL_NAME']][0]
+    model_dir : Path = Path("/usr/src/app")  # /  MODELS_CHOICES[os.environ['MODEL_NAME']][0]
     max_epoch: int = 5
     fast_dev_run: bool = False
     mini_dataset: bool = field( default=  True,
