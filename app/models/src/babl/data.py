@@ -198,7 +198,7 @@ class TextDataModule(pl.LightningDataModule):
         # NOTICE, we  re-use the validatio dataset
         self.test_path = self.args.data_path_root / "10k.jsonl"
         self.tokenizer = tokenizer
-        self.pin_memory = False  # True if torch.cuda.is_available() else False
+        self.pin_memory = True if torch.cuda.is_available() else False
 
     def train_dataloader(self):
         ds_train = TextDataset(self.train_path, self.tokenizer,data_args=self.args, mini_dataset=self.mini_dataset)
