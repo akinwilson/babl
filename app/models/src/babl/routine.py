@@ -106,7 +106,7 @@ class Routine(pl.LightningModule):
         # calculating exact matches 
         y_hat = F.softmax(y_hat.logits, dim=-1)
         a = y_hat.argmax(1)
-        y_hat = torch.zeros(y_hat.shape).scatter(1, a.unsqueeze(1), 1.0)
+        y_hat = torch.zeros(y_hat.shape,  device=y_hat.device).scatter(1, a.unsqueeze(1), 1.0)
         matches = (y == y_hat).int()
         correct = matches.sum()
         tot = torch.prod(torch.tensor(matches.shape))
