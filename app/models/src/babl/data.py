@@ -15,6 +15,7 @@ random.seed(42)
 device = "cuda" if torch.cuda.is_available() else "cpu" 
 num_workers = multiprocessing.cpu_count()
 
+logger.info(f"Number of workers: {num_workers}")
 
 class TextDataset(Dataset):
 
@@ -125,22 +126,20 @@ class TextDataset(Dataset):
             pad_to_max_length=True,
             max_length=self.args.output_max_len,
         )
-        # print("input_encodings", input_encodings.keys())
-        # print("target_encodings", target_encodings.keys())
-        # encodings = {
-        #     "input_ids": input_encodings["input_ids"],
-        #     "attention_mask": input_encodings["attention_mask"],
-        #     "target_ids": target_encodings["input_ids"],
-        #     "target_attention_mask": target_encodings["attention_mask"],
-        # }
-
-# t5 expects         
-# input_ids=input_ids, attention_mask=attention_mask, decoder_attention_mask=decoder_attention_mask, decoder_input_ids=decoder_input_ids
+        input_ids = torch.tensor(input_encodings["input_ids"])
+        input_ids.to(device)
+        attention_mask = torch.tensor(input_encodings["attention_mask"])
+        attention_mask.to(device)
+        target_ids = torch.tensor(target_encodings["input_ids"])
+        target_ids.to(device)
+        target_attention_mask = torch.tensor(target_encodings["attention_mask"])
+        target_attention_mask.to(device)
+        
         encodings = {
-            "input_ids": torch.tensor(input_encodings["input_ids"]).to(device),
-            "attention_mask": torch.tensor(input_encodings["attention_mask"]).to(device),
-            "target_ids": torch.tensor(target_encodings["input_ids"]).to(device),
-            "target_attention_mask": torch.tensor(target_encodings["attention_mask"]).to(device),
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "target_ids": target_ids,
+            "target_attention_mask": target_attention_mask,
         }
         
         return encodings
