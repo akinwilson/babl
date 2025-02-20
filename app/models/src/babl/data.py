@@ -12,7 +12,7 @@ import multiprocessing
 logger = logging.getLogger(__name__)
 random.seed(42)
 
-device = "cuda" if torch.cuda.is_available() else "cpu" 
+device = "cuda:0" if torch.cuda.is_available() else "cpu" 
 num_workers = multiprocessing.cpu_count()
 
 logger.info(f"Number of workers: {num_workers}")
