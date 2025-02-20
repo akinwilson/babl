@@ -83,8 +83,10 @@ a `start.sh` like
 ```bash 
 #!/bin/bash 
 exec "@"
+```
 
 as ENTRYPOINT in dockefile such that  the fitting can be run it like (executed from the root of this directory) 
+
 ```
 cd fit && docker build . -f Dockerfile.fit fit:latest && cd ..
 docker run --name fit -v $(pwd)/inputs:/usr/app/src/inputs -e MODEL_NAME=t5  fit:latest  python fit.py -h  
