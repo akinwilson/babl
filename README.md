@@ -104,8 +104,10 @@ a `start.sh` like
 ```bash 
 #!/bin/bash 
 exec "@"
+```
 
 as ENTRYPOINT in dockefile such that  the fitting can be run it like (executed from the root of this directory) 
+
 ```
 cd fit && docker build . -f Dockerfile.fit fit:latest && cd ..
 docker run --name fit -v $(pwd)/inputs:/usr/app/src/inputs -e MODEL_NAME=t5  fit:latest  python fit.py -h  
@@ -113,7 +115,6 @@ docker run --name fit -v $(pwd)/inputs:/usr/app/src/inputs -e MODEL_NAME=t5  fit
 
 
 which should then print parameter 
-
  Was just agregrating all the parameters in `config.py` and successfully used there was an [issue](https://github.com/mivade/argparse_dataclass/issues/65) surrounding printing help from the cli. Also, you were figuring out [how to merge](https://stackoverflow.com/questions/79380660/how-to-pythonically-merging-python-data-classes-with-unique-attribute-names) dataclasses in prepartion for using with [dataclass_argparse](https://pypi.org/project/argparse-dataclass/). Dont forget, you wanted to also figured out how to split the parsed data back into instances of the dataclasses whcich they belong to. 
 
 - [ ] factor metric caclculations into own mondule. 
