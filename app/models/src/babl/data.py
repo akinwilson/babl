@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 random.seed(42)
 
+device = "cuda" if torch.cuda.is_available() else "cpu" 
 
 
 
@@ -146,10 +147,10 @@ class TextDataset(Dataset):
 # t5 expects         
 # input_ids=input_ids, attention_mask=attention_mask, decoder_attention_mask=decoder_attention_mask, decoder_input_ids=decoder_input_ids
         encodings = {
-            "input_ids": torch.tensor(input_encodings["input_ids"]),
-            "attention_mask": torch.tensor(input_encodings["attention_mask"]),
-            "target_ids": torch.tensor(target_encodings["input_ids"]),
-            "target_attention_mask": torch.tensor(target_encodings["attention_mask"]),
+            "input_ids": torch.tensor(input_encodings["input_ids"]).to(device),
+            "attention_mask": torch.tensor(input_encodings["attention_mask"]).to(device),
+            "target_ids": torch.tensor(target_encodings["input_ids"]).to(device),
+            "target_attention_mask": torch.tensor(target_encodings["attention_mask"]).to(device),
         }
         
         return encodings
