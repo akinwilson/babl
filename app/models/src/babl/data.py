@@ -2,28 +2,17 @@ import json
 import random
 from nlp import Dataset
 from pathlib import Path
-# from functools import partial
 from torch.utils.data import DataLoader
 from dataclasses import dataclass
-import pytorch_lightning as pl 
-# from .config import Data as DataArgs 
-
-# from .models import MODELS_CHOICES, MODELS
-# import os
-
-# from transformers import T5Tokenizer
-
-
 import torch
-
 import logging
+import multiprocessing
 
 logger = logging.getLogger(__name__)
-
 random.seed(42)
 
 device = "cuda" if torch.cuda.is_available() else "cpu" 
-
+num_workers = multiprocessing.cpu_count()
 
 
 class TextDataset(Dataset):
@@ -206,7 +195,7 @@ class TextDataModule(pl.LightningDataModule):
             ds_train,
             batch_size=self.batch_size,
             shuffle=True,
-            num_workers=10,
+            num_workers=num_workers,
             drop_last=True,
             pin_memory=self.pin_memory,
             collate_fn=T2TDataCollator(),
@@ -218,7 +207,7 @@ class TextDataModule(pl.LightningDataModule):
             ds_val,
             batch_size=self.batch_size,
             shuffle=True,
-            num_workers=10,
+            num_workers=num_workers,
             drop_last=True,
             pin_memory=self.pin_memory,
             collate_fn=T2TDataCollator(),
@@ -231,7 +220,7 @@ class TextDataModule(pl.LightningDataModule):
             ds_test,
             batch_size=self.batch_size,
             shuffle=True,
-            num_workers=10,
+            num_workers=num_workers,
             drop_last=True,
             pin_memory=self.pin_memory,
             collate_fn=T2TDataCollator(),
