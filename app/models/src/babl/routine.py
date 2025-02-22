@@ -6,12 +6,14 @@ import pytorch_lightning as pl
 import logging
 logger = logging.getLogger(__name__)
 
+
 class Routine(pl.LightningModule):
-    def __init__(self, model, vocab_size=32128):
+    def __init__(self, model, vocab_size=32128, hpo=True):
         super().__init__()
         self.model = model
         self.lr = 1e-3
         self.vocab_size= vocab_size
+        self.hpo=hpo
         self.validation_step_outputs = []
         self.training_step_outputs = []
         self.test_step_outputs = []
@@ -60,6 +62,10 @@ class Routine(pl.LightningModule):
         correct = matches.sum()
         tot = torch.prod(torch.tensor(matches.shape))
         metrics_dict = {"loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
+        if self.hpo:
+            metrics_dict = {"train_loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
+            katib.report_metrics(metrics_dict)
+        
         # print(metrics_dict)
         self.training_step_outputs.append(metrics_dict)
         return metrics_dict
@@ -116,6 +122,8 @@ class Routine(pl.LightningModule):
 
         # dummy metrics
         metrics_dict = {"val_loss": loss.item(), "val_EM": (correct/tot).item(), "val_F1": 0.9}
+        if self.hpo:
+            katib.report_metrics(metrics_dict)
         self.validation_step_outputs.append(metrics_dict)
         return metrics_dict
 
