@@ -63,8 +63,8 @@ class Routine(pl.LightningModule):
         tot = torch.prod(torch.tensor(matches.shape))
         metrics_dict = {"loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
         if self.hpo:
-            metrics_dict = {"train_loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
-            katib.report_metrics(metrics_dict)
+            metrics_dict_katib ={"train_loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
+            katib.report_metrics(metrics_dict_katib)
         
         # print(metrics_dict)
         self.training_step_outputs.append(metrics_dict)
