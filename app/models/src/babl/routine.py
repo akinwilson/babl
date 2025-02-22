@@ -79,7 +79,7 @@ class Routine(pl.LightningModule):
                 response.raise_for_status()
                 print(f"Reported metrics {metrics_dict_katib}")
             except requests.exceptions.RequestException as e:
-                print(f"Failed to report metrics {metrics_dict_katib}: {e}"
+                print(f"Failed to report metrics {metrics_dict_katib}: {e}")
             
         
 
@@ -149,7 +149,7 @@ class Routine(pl.LightningModule):
                 response.raise_for_status()
                 print(f"Reported metrics {metrics_dict_katib}")
             except requests.exceptions.RequestException as e:
-                print(f"Failed to report metrics {metrics_dict_katib}: {e}"
+                print(f"Failed to report metrics {metrics_dict_katib}: {e}")
 
 
         
