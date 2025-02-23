@@ -74,12 +74,12 @@ class Data:
 @dataclass
 class Deployment:
     fast_api_title : str = field(default="T5 Question and Answering", metadata={'help': "Title given to endpoint serving model"})
-    publish :  bool = field(default=False, metadata={"help":"Whether or not to publish serving container to remote repository"})
+    publish :  bool = field(default=True, metadata={"help":"Whether or not to publish serving container to remote repository"})
 
 @dataclass
 class Experiment:
     experiment_description : str = field(default="Fine-tuned T5 model for question answering. Runs on GPU.", metadata={"help": "description of experiment being performed"})
-    log_datasets : bool = field(default=False, metadata={"help":"Whether or not to log dataset during experiment tracking"})
+    log_datasets : bool = field(default=True, metadata={"help":"Whether or not to log dataset during experiment tracking"})
 
 @dataclass
 class Fitting:
