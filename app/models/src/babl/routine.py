@@ -1,10 +1,4 @@
 from kubeflow.katib.api.report_metrics import report_metrics as report_hpo_metrics 
-import requests
-import time
-# Katib pushes metrics to this port
-KATIB_METRICS_URL = "http://localhost:8000/metrics"
-
-
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -68,21 +62,6 @@ class Routine(pl.LightningModule):
         correct = matches.sum()
         tot = torch.prod(torch.tensor(matches.shape))
         metrics_dict = {"loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
-        #if self.hpo:
-            
-       #     metrics_dict_katib ={
-       #         "train_loss": loss,
-       #         "train_EM": (correct/tot).item(),
-       #         "train_F1": 0.9}
-        #    report_hpo_metrics(metrics_dict_katib)
-            # try:
-            #    response = requests.post(KATIB_METRICS_URL, json=metrics_dict_katib)
-            #    response.raise_for_status()
-            #    print(f"Reported metrics {metrics_dict_katib}")
-            #except requests.exceptions.RequestException as e:
-            #    print(f"Failed to report metrics {metrics_dict_katib}: {e}")
-            
-        
 
         self.training_step_outputs.append(metrics_dict)
         return metrics_dict
