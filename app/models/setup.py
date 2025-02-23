@@ -32,7 +32,7 @@ setup(
         'onnxruntime>=1.20.1',
         'onnxruntime-gpu>=1.20.1',
         'requests>=2.32.2',
-        'katib @ git+https://github.com/kubeflow/katib.git@master#subdirectory=sdk/python/v1beta1',
+        'kubeflow-katib @ git+https://github.com/kubeflow/katib.git@master#subdirectory=sdk/python/v1beta1',
     ],
     python_requires='>=3.8',
     zip_safe=False,
