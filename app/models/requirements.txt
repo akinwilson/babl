@@ -1,0 +1,1 @@
+git+https://github.com/kubeflow/katib.git@master#subdirectory=sdk/python/v1beta1
