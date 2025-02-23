@@ -71,7 +71,15 @@ class Data:
     data_path_root : Path = field(default_factory= lambda : Path("/usr/src/app/inputs"), metadata={'help': "directory path containing fitting data. Should contain files: `10k.jsonl` and `50k.jsonl`"} )
 ####################################################################################
 
+@dataclass
+class Deployment:
+    fast_api_title : str = field(default="T5 Question and Answering", metadata={'help': "Title given to endpoint serving model")
+    publish :  bool = field(default=False, metadata={"help":"Whether or not to publish serving container to remote repository"})
 
+@dataclass
+class Experiment:
+    experiment_description : str = field(default="Fine-tuned T5 model for question answering. Runs on GPU.", metadata={"help": "description of experiment being performed"})
+    log_datasets : bool = field(default=False, metadata={"help":"Whether or not to log dataset during experiment tracking"})
 
 @dataclass
 class Fitting:
@@ -79,6 +87,7 @@ class Fitting:
     model_dir : Path = Path("/usr/src/app")  # /  MODELS_CHOICES[os.environ['MODEL_NAME']][0]
     max_epoch: int = 5
     fast_dev_run: bool = False
+    hpo : bool = field(default=True, metadata={"help":"Whether or not hyperparameter optimisation is being performed"})
     mini_dataset: bool = field( default=  True,
         metadata={
             "help": "Whether to use a baby dataset of 128 to test the fitting routine"
@@ -101,7 +110,7 @@ class Fitting:
 ####################################################################################
 
 @dataclass
-class Args(Fitting, Data, {'t5':T5,'bloom': Bert, 'bert': Bloom}[os.environ['MODEL_NAME']]):
+class Args(Fitting, Experiment, Deployment,  Data, {'t5':T5,'bloom': Bert, 'bert': Bloom}[os.environ['MODEL_NAME']]):
 #     def __post_init__(self):
 #         Fitting.__post_init__(self)
     def post_parse_init(self):
