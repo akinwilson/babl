@@ -1,4 +1,4 @@
-# import kubeflow.katib as katib
+from kubeflow.katib.api.report_metrics import report_metrics as report_hpo_metrics 
 import requests
 import time
 # Katib pushes metrics to this port
@@ -68,18 +68,19 @@ class Routine(pl.LightningModule):
         correct = matches.sum()
         tot = torch.prod(torch.tensor(matches.shape))
         metrics_dict = {"loss": loss, "train_EM": (correct/tot).item(), "train_F1": 0.9}
-        if self.hpo:
-            metrics_dict_katib ={
-                "train_loss": loss,
-                "train_EM": (correct/tot).item(),
-                "train_F1": 0.9,
-                "timestamp": time.time()}
-            try:
-                response = requests.post(KATIB_METRICS_URL, json=metrics_dict_katib)
-                response.raise_for_status()
-                print(f"Reported metrics {metrics_dict_katib}")
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to report metrics {metrics_dict_katib}: {e}")
+        #if self.hpo:
+            
+       #     metrics_dict_katib ={
+       #         "train_loss": loss,
+       #         "train_EM": (correct/tot).item(),
+       #         "train_F1": 0.9}
+        #    report_hpo_metrics(metrics_dict_katib)
+            # try:
+            #    response = requests.post(KATIB_METRICS_URL, json=metrics_dict_katib)
+            #    response.raise_for_status()
+            #    print(f"Reported metrics {metrics_dict_katib}")
+            #except requests.exceptions.RequestException as e:
+            #    print(f"Failed to report metrics {metrics_dict_katib}: {e}")
             
         
 
@@ -142,15 +143,8 @@ class Routine(pl.LightningModule):
             metrics_dict_katib ={
                 "val_loss": loss.item(),
                 "val_EM": (correct/tot).item(),
-                "val_F1": 0.9,
-                "timestamp": time.time()}
-            try:
-                response = requests.post(KATIB_METRICS_URL, json=metrics_dict_katib)
-                response.raise_for_status()
-                print(f"Reported metrics {metrics_dict_katib}")
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to report metrics {metrics_dict_katib}: {e}")
-
+                "val_F1": 0.9}
+            report_hpo_metrics(metrics_dict_katib) 
 
         
         self.validation_step_outputs.append(metrics_dict)
