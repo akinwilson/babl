@@ -1,4 +1,39 @@
-from setuptools import setup
+from setuptools import setup, find_packages 
 
-if __name__ == "__main__":
-    setup()
+setup(
+    name='babl',
+    description='Fine tuning large language models',
+    author='Akin Wilson',
+    license='MIT',
+    license_file='LICENSE',
+    platforms=['unix', 'linux', 'osx', 'cygwin', 'win32'],
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+    ],
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
+    install_requires=[
+        'tqdm>=4.67.1',
+        'torch>=2.5.1',
+        'dataset>=1.6.2',
+        'transformers>=4.48.0',
+        'nlp>=0.4.0',
+        'sentencepiece>=0.2.0',
+        'accelerate>=1.3.0',
+        'gdown>=5.2.0',
+        'protobuf<=5',
+        'pytorch-lightning>=2.5.0.post0',
+        'tensorboard>=2.18.0',
+        'onnx>=1.17.0',
+        'onnxruntime>=1.20.1',
+        'onnxruntime-gpu>=1.20.1',
+        'requests>=2.32.2',
+        'katib @ git+https://github.com/kubeflow/katib.git@master#subdirectory=sdk/python/v1beta1',
+    ],
+    python_requires='>=3.8',
+    zip_safe=False,
+)
