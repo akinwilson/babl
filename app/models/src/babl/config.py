@@ -73,7 +73,7 @@ class Data:
 
 @dataclass
 class Deployment:
-    fast_api_title : str = field(default="T5 Question and Answering", metadata={'help': "Title given to endpoint serving model")
+    fast_api_title : str = field(default="T5 Question and Answering", metadata={'help': "Title given to endpoint serving model"})
     publish :  bool = field(default=False, metadata={"help":"Whether or not to publish serving container to remote repository"})
 
 @dataclass
