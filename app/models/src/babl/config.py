@@ -85,16 +85,25 @@ class Fitting:
         }
     )
 
-    def __post_init__(self):
-        try:
-            self.model_dir.mkdir(parents=True, exist_ok=True)
-        except AttributeError:
-            Path(self.model_dir).mkdir(parents=True, exist_ok=True)
+    def init_directories(self):
+        """Manually initialize directories after parsing arguments."""
+        if not isinstance(self.model_dir, Path):
+            self.model_dir = Path(self.model_dir)  # Ensure it's a Path object
+        self.model_dir.mkdir(parents=True, exist_ok=True)
 
+
+#     def __post_init__(self):
+#         try:
+#             self.model_dir.mkdir(parents=True, exist_ok=True)
+#         except AttributeError:
+#             Path(self.model_dir).mkdir(parents=True, exist_ok=True)
+# 
 ####################################################################################
 
 @dataclass
 class Args(Fitting, Data, {'t5':T5,'bloom': Bert, 'bert': Bloom}[os.environ['MODEL_NAME']]):
-    def __post_init__(self):
-        Fitting.__post_init__(self)
-
+#     def __post_init__(self):
+#         Fitting.__post_init__(self)
+    def post_parse_init(self):
+        """Call this manually after parsing arguments."""
+        self.init_directories() 
